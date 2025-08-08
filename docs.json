@@ -121,7 +121,7 @@
               {
                 "group": "Tag",
                 "pages": [
-                  "api-reference/run-all-tests-that-have-the-specified-tag.mdx"
+                  "api-reference/run-all-tests-that-have-the-specified-tag"
                 ]
               }
             ]
