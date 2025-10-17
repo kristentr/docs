@@ -18,6 +18,12 @@
       "dark": "#1a1a1a"
     }
   },
+  "integrations": {
+    "posthog": {
+        "apiKey": "phc_f6rfVwQkiIIF1075FAf17N8uBski5p16Mf4diwQpdVf",
+        "apiHost": "https://reports.autonoma.app"
+    }
+  },
   "topbarLinks": [
     {
       "name": "Support",
