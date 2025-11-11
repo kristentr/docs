@@ -23,8 +23,8 @@
   },
   "integrations": {
     "posthog": {
-        "apiKey": "phc_f6rfVwQkiIIF1075FAf17N8uBski5p16Mf4diwQpdVf",
-        "apiHost": "https://reports.autonoma.app"
+      "apiKey": "phc_f6rfVwQkiIIF1075FAf17N8uBski5p16Mf4diwQpdVf",
+      "apiHost": "https://reports.autonoma.app"
     }
   },
   "topbarLinks": [
@@ -57,152 +57,143 @@
         }
       ]
     },
-    "tabs": [
-      {
-        "tab": "Get Started",
-        "groups": [
-          {
-            "group": "Introduction",
-            "pages": [
-              "introduction",
-              "what-is-e2e-testing",
-              "what-is-autonoma",
-              "your-first-test"
-            ]
-          },
-          {
-            "group": "Understanding Tests",
-            "pages": [
-              "understanding-test-structure",
-              "test-organization-and-naming-conventions"
-            ]
-          },
-          {
-            "group": "Creating Tests",
-            "pages": [
-              "applications",
-              "build-for-ios-apps",
-              "new_test"
-            ]
-          },
-          {
-            "group": "Running Tests",
-            "pages": ["running_tests", "slack-integration"]
-          },
-          {
-            "group": "Onboarding",
-            "pages": [
-              "configure-your-application",
-              "integrate-with-cicd"
-            ]
-          },
-          {
-            "group": "Advanced Testing",
-            "pages": [
-              "clicking-vs-prompting",
-              "variables",
-              "random-data",
-              "components",
-              "extract-and-reuse-data",
-              "why-tests-fail"
-            ]
-          },
-          {
-            "group": "Configuration & Integrations",
-            "pages": [
-              "device-environment",
-              "cicd_integration",
-              "vercel"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "API Reference",
-        "groups": [
-          {
-            "group": "Using the API",
-            "pages": ["overview"]
-          },
-          {
-            "group": "API Reference",
-            "pages": [
-              {
-                "group": "Application",
-                "pages": [
-                  "api-reference/create-application",
-                  "api-reference/update-application-version"
-                ]
-              },
-              {
-                "group": "Test",
-                "pages": [
-                  "api-reference/list-tests",
-                  "api-reference/get-a-specific-test",
-                  "api-reference/run-a-test-by-test-id"
-                ]
-              },
-              {
-                "group": "Folder",
-                "pages": [
-                  "api-reference/list-folders",
-                  "api-reference/get-a-specific-folder",
-                  "api-reference/run-tests-by-folder-id"
-                ]
-              },
-              {
-                "group": "Run",
-                "pages": [
-                  "api-reference/list-test-runs",
-                  "api-reference/get-a-specific-test-run",
-                  "api-reference/get-a-specific-run-status",
-                  "api-reference/get-a-specific-run-folder-status"
-                ]
-              },
-              {
-                "group": "Tag",
-                "pages": [
-                  "api-reference/run-all-tests-that-have-the-specified-tags"
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  },
-   "footer": {
-     "socials": {
-       "linkedin": "https://www.linkedin.com/company/autonoma-ai/",
-       "twitter": "https://x.com/autonomaai"
-     },
-     "links": [
+     "tabs": [
        {
-         "header": "Product",
-         "items": [
+         "tab": "Get Started",
+         "groups": [
            {
-             "label": "Autonoma",
-             "href": "https://autonoma.app/"
+             "group": "Introduction",
+             "pages": [
+               "introduction",
+               "what-is-e2e-testing",
+               "what-is-autonoma",
+               "your-first-test"
+             ]
+           },
+           {
+             "group": "Onboarding",
+             "pages": [
+               "configure-your-application",
+               "cicd_integration"
+             ]
+           },
+           {
+             "group": "Understanding Tests",
+             "pages": [
+               "understanding-test-structure",
+               "test-organization-and-naming-conventions"
+             ]
+           },
+           {
+             "group": "Advanced Testing",
+             "pages": [
+               "clicking-vs-prompting",
+               "variables",
+               "random-data",
+               "components",
+               "extract-and-reuse-data",
+               "why-tests-fail"
+             ]
+           },
+           {
+             "group": "Configuration & Integrations",
+             "pages": [
+               "device-environment",
+               "vercel",
+               "build-for-ios-apps",
+               "slack-integration"
+             ]
+           }
+         ]
+       },
+       {
+         "tab": "API Reference",
+         "groups": [
+           {
+             "group": "Using the API",
+             "pages": [
+               "overview"
+             ]
+           },
+           {
+             "group": "API Reference",
+             "pages": [
+               {
+                 "group": "Application",
+                 "pages": [
+                   "api-reference/create-application",
+                   "api-reference/update-application-version"
+                 ]
+               },
+               {
+                 "group": "Test",
+                 "pages": [
+                   "api-reference/list-tests",
+                   "api-reference/get-a-specific-test",
+                   "api-reference/run-a-test-by-test-id"
+                 ]
+               },
+               {
+                 "group": "Folder",
+                 "pages": [
+                   "api-reference/list-folders",
+                   "api-reference/get-a-specific-folder",
+                   "api-reference/run-tests-by-folder-id"
+                 ]
+               },
+               {
+                 "group": "Run",
+                 "pages": [
+                   "api-reference/list-test-runs",
+                   "api-reference/get-a-specific-test-run",
+                   "api-reference/get-a-specific-run-status",
+                   "api-reference/get-a-specific-run-folder-status"
+                 ]
+               },
+               {
+                 "group": "Tag",
+                 "pages": [
+                   "api-reference/run-all-tests-that-have-the-specified-tags"
+                 ]
+               }
+             ]
            }
          ]
        }
-     ]
-   },
-   "seo": {
-     "metatags": {
-       "description": "Comprehensive documentation for Autonoma - AI-powered UI test automation platform. Learn to create, run, and manage automated tests for web and mobile applications.",
-       "keywords": "test automation, UI testing, Autonoma, documentation, API, CI/CD, mobile testing, web testing",
-       "author": "Autonoma",
-       "robots": "index, follow",
-       "og:image": "/images/autonoma-light.png",
-       "og:type": "website",
-       "og:site_name": "Autonoma Documentation",
-       "twitter:card": "summary_large_image",
-       "twitter:site": "@autonomaai",
-       "canonical": "https://docs.autonoma.app",
-       "theme-color": "#4f46e5",
-       "color-scheme": "light dark"
-     },
-     "indexing": "all"
-   }
- }
+      ],
+      "seo": {
+        "metatags": {
+          "description": "Comprehensive documentation for Autonoma - AI-powered UI test automation platform. Learn to create, run, and manage automated tests for web and mobile applications.",
+          "keywords": "test automation, UI testing, Autonoma, documentation, API, CI/CD, mobile testing, web testing",
+          "author": "Autonoma",
+          "robots": "index, follow",
+          "og:image": "/images/autonoma-light.png",
+          "og:type": "website",
+          "og:site_name": "Autonoma Documentation",
+          "twitter:card": "summary_large_image",
+          "twitter:site": "@autonomaai",
+          "canonical": "https://docs.autonoma.app",
+          "theme-color": "#4f46e5",
+          "color-scheme": "light dark"
+        },
+        "indexing": "all"
+      }
+    },
+    "footer": {
+      "socials": {
+        "linkedin": "https://www.linkedin.com/company/autonoma-ai/",
+        "twitter": "https://x.com/autonomaai"
+      },
+      "links": [
+        {
+          "header": "Product",
+          "items": [
+            {
+              "label": "Autonoma",
+              "href": "https://autonoma.app/"
+            }
+          ]
+        }
+      ]
+    }
+  }

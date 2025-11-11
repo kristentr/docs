@@ -1,64 +1,69 @@
 ---
-title: Configure Your Application
-description: Learn how to configure authentication for your application in Autonoma, from simple email/password flows to magic links, SSO, header bypasses, and IP whitelisting.
+title: "Configure Your Application"
+description: "Learn how to add your application to Autonoma and configure authentication for testing web and mobile apps."
 ---
 
 # Configure Your Application
 
 ## Why Application Configuration Matters
 
-Before you can test your application with Autonoma, you need to tell Autonoma how to access it. For most applications, this means configuring authentication—how your tests "log in" to access protected features.
+Before you can test your application with Autonoma, you need to set it up properly. This involves two key steps:
+
+1. **Adding your application** to Autonoma (telling it what to test)
+2. **Configuring authentication** (how your tests will access protected features)
 
 Think about it: if your application requires users to log in (and most do), your tests need to be able to log in too. Otherwise, they can only test your login page!
 
-This guide walks you through all the authentication options Autonoma supports, from simple email/password flows to more complex magic link setups.
+This guide walks you through both steps, from adding web/mobile applications to setting up various authentication methods.
 
-## Understanding Your Authentication Needs
+## Step 1: Adding Your Application
 
-First, let's identify what type of authentication your application uses. Check which one applies to you:
+To start running tests, you first need to add the application (either web or mobile) you plan to test.
 
-### Option 1: Email and Password (Most Common)
-Your users log in with an email address and password. This is the simplest and most common setup.
+### For Web Applications
 
-**Examples**:
-- test@example.com / SecurePassword123
+1. **Add a Name**\
+   Provide a **name** for the web application. This helps you easily identify it in your list of available applications.
 
-**Best for**: Most applications with traditional login
+2. **Enter the URL**\
+   Add the **URL** where the web application is hosted. This could be a public-facing URL or an internal testing environment URL.
 
-### Option 2: Magic Link (Email-Based)
-Your application sends users a special link via email that logs them in when clicked. No password required.
+3. **Set an Environment Tag**\
+   Assign an **environment tag** to indicate where the web app is running. Common tags include **Prod**, **Staging**, **QA**, but you can also create custom tags specific to your business needs (e.g., **Dev**, **Beta**, etc.).
 
-**Examples**:
-- Slack, Notion, many modern SaaS apps
+### For Mobile Applications
 
-**Best for**: Passwordless authentication systems
+1. **Add a Name**\
+   Provide a **name** for the mobile application so you can easily identify it.
 
-### Option 3: SSO / OAuth (Third-Party Login)
-Your users log in through a third-party service like Google, Microsoft, or GitHub.
+2. **Upload the Application File**\
+   Upload the mobile app file (.apk for Android, .app for iOS) that you want to test. This is the app version you'll be interacting with during your tests.
 
-**Examples**:
-- "Sign in with Google"
-- "Sign in with Microsoft"
+3. **Add a Version Tag**\
+   Specify the **version** of the mobile app, such as **1.x**, **2.x**, etc., to distinguish between different releases or iterations.
 
-**Note**: This option typically requires Option 4 (header/cookie bypass) for testing
+![Applications setup demonstration](https://cdn.autonoma.app/images/applications.gif)
 
-### Option 4: Header or Cookie Bypass (Advanced)
-Your development team can add special authentication headers or cookies that let Autonoma skip the login process entirely.
+Once you've uploaded the application (and version), it's now ready to be used! You can immediately start building and running tests over it. This allows you to test web and mobile apps effectively by simulating user interactions, verifying functionality, and ensuring quality across different versions and environments.
 
-**Best for**: Fast test execution, avoiding login complexity
+## Step 2: Configuring Authentication
 
-### Option 5: IP Whitelisting
-Your application only allows access from specific IP addresses.
+Now that your application is added, you need to configure how your tests will authenticate. Let's identify what type of authentication your application uses.
 
-**Best for**: Additional security layer alongside other auth methods
+## Authentication Options
 
-Let's dive into each option with detailed setup instructions.
+Autonoma supports multiple authentication methods. Choose the one that matches your application:
 
-## Option 1: Email and Password Authentication
+- [Email and Password](#email-and-password): Most common authentication method with username/password
+- [Magic Link](#magic-link): Passwordless authentication via email links
+- [Header or Cookie Bypass](#header-or-cookie-bypass): Fastest method requiring development team support
+- [IP Whitelisting](#ip-whitelisting): Additional security layer for restricting access
+
+## Email and Password
 
 This is the recommended approach if your application uses traditional username/password login.
 
-### How It Works
+#### How It Works
 
 Your tests will:
 1. Navigate to your login page
@@ -67,9 +72,9 @@ Your tests will:
 4. Click the login button
 5. Verify successful login
 
-### Step-by-Step Setup
+#### Step-by-Step Setup
 
-#### Step 1: Create a Test Account
+**Step 1: Create a Test Account**
 
 Before setting up Autonoma, create a dedicated test account in your application:
 
@@ -85,7 +90,7 @@ Before setting up Autonoma, create a dedicated test account in your application:
 - Can be reset/cleaned up between test runs
 - Makes it clear which traffic is from tests
 
-#### Step 2: Configure in Autonoma
+**Step 2: Configure in Autonoma**
 
 1. Log into Autonoma
 2. Go to your application settings
@@ -94,7 +99,7 @@ Before setting up Autonoma, create a dedicated test account in your application:
 
 **Important**: Autonoma stores credentials securely and encrypted.
 
-#### Step 3: Create a Login Test
+**Step 3: Create a Login Test**
 
 Create a reusable login test that other tests can reference:
 
@@ -109,7 +114,7 @@ Test: "Login - Test account authentication"
 6. Verify: User is logged in (check for profile icon/name)
 ```
 
-#### Step 4: Use Variables for Credentials
+**Step 4: Use Variables for Credentials**
 
 Instead of hard-coding credentials in every test, use Autonoma's **Variables** feature:
 
@@ -128,7 +133,7 @@ Instead of hard-coding credentials in every test, use Autonoma's **Variables** f
 - Easier to manage multiple test accounts
 - Can have different credentials for staging vs. production
 
-### Common Issues and Solutions
+#### Common Issues and Solutions
 
 **Issue**: Test fails at login every time
 
@@ -150,34 +155,23 @@ Instead of hard-coding credentials in every test, use Autonoma's **Variables** f
 - Ask your dev team to extend session timeout for test accounts
 - Or create a "re-login" test step you can reuse when sessions expire
 
-## Option 2: Magic Link Authentication
+## Magic Link
 
 Magic links are special URLs sent via email that log users in when clicked. Testing these requires accessing email programmatically.
 
 ### How It Works
 
 Autonoma provides special interactions that let you:
-1. Generate a temporary email address
-2. Request a magic link (sent to that email)
-3. Retrieve the magic link from the email
-4. Navigate to that link to complete login
+1. Generate a temporary email address that can receive emails
+2. Input the generated email on the login form
+3. Request a magic link (sent to that email)
+4. Wait for the email to be sent and received
+5. Extract the magic link from the email
+6. Navigate to the extracted URL to complete login
 
 ### Step-by-Step Setup
 
-#### Step 1: Understanding Email Interactions
-
-Autonoma provides two special interactions for handling emails:
-
-**1. Email Address Generator** (`email-information-retriever-generator`)
-- Creates a temporary email address
-- This email can receive messages
-- Valid for the duration of your test
-
-**2. Email Information Retriever** (`email-information-retriever`)
-- Retrieves specific information from emails sent to the generated address
-- You tell it what to extract (like "the magic link")
-
-#### Step 2: Create a Magic Link Login Test
+**Step 1: Create a Magic Link Login Test**
 
 Here's how to structure your test:
 
@@ -186,53 +180,29 @@ Test: "Login - Magic link authentication"
 
 1. Navigate to login page
 
-2. Click "Get Magic Link" (or similar button)
-
-3. Add prompt: "Generate an email address for extracting information"
-   (This uses the email-information-retriever-generator)
+2. Add prompt: "Generate an email address for extracting information"
+   (This uses email-retriever-generator to create a new email each time)
    → System generates: temp-12345@autonoma-test.com
 
-4. Type the generated email address into the email field
+3. Type the generated email {{key:generated_email}} into the email input field
 
-5. Click "Send Magic Link"
+4. Click "Send Magic Link" (or similar button)
 
-6. Wait until: "Email sent" confirmation appears
+5. Wait for 3-5 seconds to allow the email to be sent and received
 
-7. Add prompt: "Retrieve the magic link from the email"
-   (This uses the email-information-retriever)
-   → System reads the email and extracts the URL
+6. Add prompt: "Using the generated email, retrieve the magic link to login to [your-app-domain]"
+   (This extracts the magic link from the received email)
+   → Information is stored in key: email_retrieved_information
 
-8. The magic link URL is now stored in a variable
+7. Add prompt: "Go to URL {{key:email_retrieved_information}}"
+   (This navigates to the extracted magic link)
 
-9. Add prompt: "Go to {{MAGIC_LINK_URL}}"
-   (Uses the variable from step 7)
+8. Wait until: Dashboard or home page appears
 
-10. Wait until: Dashboard appears
-
-11. Verify: User is logged in
+9. Verify: User is logged in
 ```
 
-#### Step 3: Store Magic Link in Variable
-
-When you use the email information retriever, the extracted content is automatically stored in a variable you can reference:
-
-1. After retrieving the magic link, it's stored as `MAGIC_LINK_URL` (or whatever you name it)
-2. Use that variable in a navigation step: "Go to {{MAGIC_LINK_URL}}"
-
-#### Step 4: Handling Different Email Formats
-
-Magic link emails can have different formats. Be specific when retrieving:
-
-**Good prompts for email information retrieval**:
-- "Retrieve the magic link URL from the email"
-- "Extract the login link from the email"
-- "Get the verification URL from the email message"
-
-**Not recommended (too vague)**:
-- "Get the link" (which link if there are multiple?)
-- "Find the URL" (might grab the wrong URL)
-
-### Common Issues and Solutions
+#### Common Issues and Solutions
 
 **Issue**: Email doesn't arrive
 
@@ -258,22 +228,18 @@ Magic link emails can have different formats. Be specific when retrieving:
 - Ask dev team for the email template structure
 - Look at a real magic link email for reference
 
-## Option 3: Header or Cookie Bypass (Recommended for Speed)
+## Header or Cookie Bypass
 
 This is the fastest and most reliable approach if your development team can support it. Instead of going through the login flow, you pass special authentication credentials directly via HTTP headers or cookies.
 
-### How It Works
-
-Your development team adds code that says: "If I see this special header (or cookie), skip the login check and treat the user as authenticated."
-
-### Benefits
+#### Benefits
 
 - **Fast**: No login flow needed, tests start immediately
 - **Reliable**: No risk of login UI changes breaking tests
 - **Simple**: One configuration, works for all tests
 - **Clean traffic**: Easy to identify and filter test traffic
 
-### What You Need from Your Dev Team
+**What You Need from Your Dev Team**
 
 Ask your developers to implement one of these:
 
@@ -307,16 +273,14 @@ Then: Authenticate as test user
 - Cookie name: `test_auth`
 - Cookie value: `autonoma-test-token-12345`
 
-### Step-by-Step Setup
-
-#### Step 1: Coordinate with Your Dev Team
+**Step 1: Coordinate with Your Dev Team**
 
 1. Share this guide with your development team
 2. Ask them to implement either header or cookie bypass
 3. Get the exact header/cookie name and value they implemented
 4. Confirm it works in staging/test environments
 
-#### Step 2: Configure in Autonoma
+**Step 2: Configure in Autonoma**
 
 1. Go to your application settings in Autonoma
 2. Select "Authentication Header" or "Authentication Cookie"
@@ -324,7 +288,7 @@ Then: Authenticate as test user
 4. Enter the header/cookie value
 5. Save configuration
 
-#### Step 3: Test It
+**Step 3: Test It**
 
 Create a simple test that verifies it works:
 
@@ -338,7 +302,7 @@ Test: "Verify authentication bypass works"
 
 If this test passes without any login steps, your bypass is working correctly!
 
-### Security Considerations
+#### Security Considerations
 
 **Your dev team might worry about security**. Reassure them:
 
@@ -349,24 +313,11 @@ If this test passes without any login steps, your bypass is working correctly!
 
 This is a standard practice for automated testing and is safe when configured properly.
 
-### Additional Benefits
-
-**Easy test data management**:
-- Can have different bypass tokens for different user types:
-  - `admin-test-token` → Logs in as admin
-  - `user-test-token` → Logs in as regular user
-  - `premium-test-token` → Logs in as premium user
-
-**Faster test execution**:
-- Login flow takes 5-10 seconds
-- Header bypass takes 0 seconds
-- On 100 tests, save 8-16 minutes per run!
-
-## Option 4: IP Whitelisting
+## IP Whitelisting
 
 IP whitelisting means your application only allows access from specific IP addresses. This is often used in addition to other authentication methods.
 
-### Autonoma's Static IP
+#### Autonoma's Static IP
 
 Autonoma uses a static IP address for all test execution:
 
@@ -374,9 +325,9 @@ Autonoma uses a static IP address for all test execution:
 3.148.127.74
 ```
 
-### Step-by-Step Setup
+#### Step-by-Step Setup
 
-#### Step 1: Provide IP to Your Dev Team
+**Step 1: Provide IP to Your Dev Team**
 
 Send this message to your development or DevOps team:
 
@@ -392,25 +343,13 @@ Environment: [specify which environments]
 Let me know once this is configured. Thanks!
 ```
 
-#### Step 2: Verify Whitelisting Works
+**Step 2: Verify Whitelisting Works**
 
 Once your team confirms the IP is whitelisted, test it:
 
 1. Create a simple test that accesses your application
 2. Run the test
 3. Verify it can access your app without IP-related blocks
-
-### Combining with Other Auth Methods
-
-IP whitelisting typically works alongside other authentication:
-
-**Example: IP Whitelisting + Email/Password**
-- IP whitelist ensures only Autonoma can reach your staging environment
-- Email/password handles actual user authentication
-
-**Example: IP Whitelisting + Header Bypass**
-- IP whitelist provides first layer of security
-- Special header provides second layer and handles authentication
 
 ## Choosing the Right Authentication Strategy
 
@@ -451,13 +390,13 @@ Magic Link + IP Whitelisting
 
 ## Next Steps After Configuration
 
-Once your authentication is configured:
+Once your application is configured:
 
 1. ✅ **Create a login test** (if using email/password or magic link)
 2. ✅ **Verify it works** by running a simple test
 3. ✅ **Document your setup** for your team
 4. ✅ **Start creating feature tests** (now that you can access your app)
-5. ✅ **Set up CI/CD integration** ([Integrate With CI/CD →](/integrate-with-cicd))
+5. ✅ **Set up CI/CD integration** (Integrate With CI/CD →)
 
 ## Troubleshooting Common Issues
 
@@ -494,7 +433,7 @@ Once your authentication is configured:
 
 ## Key Takeaways
 
-1. **Authentication is required** for testing most applications
+1. **Application setup requires two steps**: adding the app and configuring authentication
 2. **Email/password is simplest** but requires maintaining test accounts
 3. **Magic links are possible** using Autonoma's email interactions
 4. **Header/cookie bypass is fastest** and most reliable with dev team support
@@ -507,4 +446,4 @@ With your application configured, you're ready to integrate Autonoma into your d
 
 ---
 
-*Ready to automate your test execution? Continue to [Integrate With CI/CD →](/integrate-with-cicd)*
+*Ready to automate your test execution? Continue to [Integrate With CI/CD →](/cicd_integration)*

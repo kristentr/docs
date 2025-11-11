@@ -207,6 +207,71 @@ Once your test passes consistently:
 
 **Folder suggestion**: Create a folder called "Sign Up Flow" or "User Registration" to group related tests together.
 
+## Step 8: Run Your Test in Different Ways
+
+Now that your test is saved, you have three flexible ways to execute it, depending on your needs:
+
+### Method 1: Run On Demand (Quick Testing)
+
+The simplest way to run a test is **on demand**. This is perfect for:
+- Testing changes you've just made
+- Debugging issues
+- Quick verification before deploying
+
+**How to run on demand**:
+1. Find your saved test in the dashboard
+2. Click the **Run** button
+3. Watch the test execute in real-time
+4. See results immediately
+
+### Method 2: Schedule Automatic Runs (Continuous Monitoring)
+
+For ongoing monitoring, you can **schedule** your tests to run automatically at set intervals. This is ideal for:
+- Regular health checks
+- Monitoring after deployments
+- Catching regressions over time
+
+**Scheduling options**:
+- **Hourly**: For critical flows that need frequent checking
+- **Daily**: For important but stable features
+- **Weekly**: For comprehensive regression testing
+- **Monthly**: For thorough end-to-end validation
+
+**How to schedule**:
+1. Go to your test settings
+2. Choose "Schedule" from the execution options
+3. Select your frequency and time
+4. Save the schedule
+
+### Method 3: Run Programmatically via API (CI/CD Integration)
+
+For full automation in your development pipeline, you can run tests **programmatically using our API**. This is essential for:
+- Integrating tests into CI/CD pipelines
+- Running tests as part of deployments
+- Automating quality gates
+
+**API integration benefits**:
+- Trigger tests from any CI/CD system (GitHub Actions, GitLab CI, Jenkins, etc.)
+- Run tests before/after deployments
+- Get programmatic results for automated decisions
+
+![Test execution options demonstration](https://cdn.autonoma.app/images/running-tests.gif)
+
+**Basic API usage**:
+```bash
+# Run a single test
+curl -X POST https://api.prod.autonoma.app/v1/run/test/<test-id> \
+  -H "autonoma-client-id: YOUR_CLIENT_ID" \
+  -H "autonoma-client-secret: YOUR_CLIENT_SECRET"
+
+# Run all tests in a folder
+curl -X POST https://api.prod.autonoma.app/v1/run/folder/<folder-id> \
+  -H "autonoma-client-id: YOUR_CLIENT_ID" \
+  -H "autonoma-client-secret: YOUR_CLIENT_SECRET"
+```
+
+We'll cover CI/CD integration in detail in the next guide, but this gives you a taste of the automation possibilities.
+
 ## What You Just Learned
 
 Congratulations! You've just created your first e2e test. Let's recap what you did:
@@ -218,6 +283,7 @@ Congratulations! You've just created your first e2e test. Let's recap what you d
 5. ✅ Ran the test and saw it execute
 6. ✅ Debugged and refined (if needed)
 7. ✅ Saved your test
+8. ✅ Learned different ways to run your test
 
 **The workflow you just learned applies to every test you'll create in Autonoma**, whether you're testing:
 - E-commerce checkout
@@ -336,9 +402,10 @@ No problem! You can:
 Now that you've created your first test, you're ready to:
 
 1. **Create tests for your own application** using the same workflow
-2. **Learn about test structure** to understand what makes tests robust ([Understanding Test Structure](/understanding-test-structure))
-3. **Explore organization strategies** to manage multiple tests ([Test Organization](/test-organization-and-naming-conventions))
-4. **Configure login** if you haven't already
+2. **Set up automated test execution** with CI/CD integration ([CI/CD Integration](/cicd_integration))
+3. **Learn about test structure** to understand what makes tests robust ([Understanding Test Structure](/understanding-test-structure))
+4. **Explore organization strategies** to manage multiple tests ([Test Organization](/test-organization-and-naming-conventions))
+5. **Configure login** if you haven't already
 
 ## Key Takeaways
 
@@ -346,7 +413,8 @@ Now that you've created your first test, you're ready to:
 2. **Keep prompts atomic**: One action per step
 3. **Verify frequently**: Add checkpoints throughout your test
 4. **Tests will need refinement**: It's normal to run and adjust multiple times
-5. **The same pattern works everywhere**: What you learned applies to all your testing needs
+5. **Multiple execution options**: Run on-demand, schedule automatically, or integrate with CI/CD
+6. **The same pattern works everywhere**: What you learned applies to all your testing needs
 
 ## Celebrate Your Progress
 
