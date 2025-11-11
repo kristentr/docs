@@ -1,0 +1,152 @@
+---
+title: "What is e2e Testing"
+description: "Understanding end-to-end testing and why it's critical for ensuring your application works the way your users actually use it."
+---
+
+# What is e2e Testing
+
+## The Problem: Software That Works... Until It Doesn't
+
+Imagine you're running an online store. Your checkout button works perfectly. Your payment processing system functions flawlessly. Your inventory system is rock solid. But when a customer tries to complete a purchase, something breaks—maybe the discount code doesn't apply, or the confirmation email never arrives.
+
+Each individual piece works fine in isolation, but when real users try to accomplish something from start to finish, the experience falls apart.
+
+This is exactly the problem that end-to-end (e2e) testing solves.
+
+## What is End-to-End Testing?
+
+End-to-end testing means testing your application the same way a real user would use it—from beginning to end.
+
+Think of it like this: instead of testing whether your car's engine works, whether the wheels turn, and whether the steering wheel responds (all separate tests), you actually *drive the car* to see if all these parts work together to get you from point A to point B.
+
+![Diagram of Quara showing the difference between Unit Testing and End to End Testing and their limitations](/quara-e2e-vs-unit.png)
+
+**In practical terms**, an e2e test might:
+- Open your application
+- Click the "Sign Up" button
+- Fill in the registration form
+- Submit the form
+- Verify that the user sees their new dashboard
+
+It tests the complete journey, just like a real user would experience it.
+
+## Why e2e Testing is Critical
+
+### The Reality Check
+
+Here's an uncomfortable truth: **you can't be certain your application actually works unless you test it the way your users use it.**
+
+You might have hundreds of other tests that verify individual pieces work correctly, but those tests don't guarantee that when someone visits your website or opens your app, they can actually accomplish what they came to do.
+
+e2e tests are your reality check. They answer the question: "Can our users actually do the things we built this application for?"
+
+### The Safety Net for Your Users
+
+Every company that ships software has experienced this nightmare scenario:
+1. Developer makes a change
+2. All tests pass
+3. Code gets deployed to production
+4. Users start complaining that a critical feature is broken
+
+Why? Because no test actually *used* the application the way users do.
+
+e2e testing prevents this by acting as your safety net. Before any code reaches your users, automated e2e tests perform the actual user workflows to catch issues that other tests miss.
+
+## How e2e Testing Complements Other Types of Tests
+
+If you've heard of unit tests or integration tests, you might wonder: aren't those enough?
+
+Think of testing like a pyramid with three layers:
+
+### Unit Tests (The Foundation)
+These test tiny, individual pieces of code in isolation. They're fast and specific.
+
+**Example**: Testing that a function correctly calculates a discount.
+- **What it checks**: "Does 20% off $100 equal $80?"
+- **What it doesn't check**: Can a user actually apply a discount code during checkout?
+
+### Integration Tests (The Middle)
+These test whether different pieces of your application work together correctly.
+
+**Example**: Testing that your checkout system correctly communicates with your payment processor.
+- **What it checks**: "Does our checkout code send the right data to the payment system?"
+- **What it doesn't check**: Can a user navigate through your UI to complete a purchase?
+
+### End-to-End Tests (The Top)
+These test complete user workflows from the user's perspective.
+
+**Example**: Testing the entire purchase process.
+- **What it checks**: "Can a user add items to cart, apply a discount code, enter payment information, and complete a purchase?"
+- **Why it matters**: This is what users actually do!
+
+### Why You Need All Three
+
+Each type of test serves a different purpose:
+
+- **Unit tests** tell you if your individual components work
+- **Integration tests** tell you if your components work together
+- **e2e tests** tell you if your users can actually accomplish their goals
+
+Missing any layer means missing potential problems. But missing e2e tests is especially risky because you're not testing what matters most: **the actual user experience**.
+
+## Real-World Impact
+
+### Example 1: The Registration Flow
+
+Your backend developer creates a perfect registration system. Your frontend developer builds a beautiful registration form. Both write tests that pass.
+
+But they made different assumptions about what happens after registration:
+- Backend redirects to `/dashboard`
+- Frontend expects to go to `/welcome`
+
+**Without e2e testing**: Users can't register. You don't discover this until users complain.
+
+**With e2e testing**: Your e2e test tries to register like a user would, immediately catches that the redirect doesn't work, and the bug gets fixed before any user sees it.
+
+### Example 2: The Checkout Journey
+
+You have 10 steps in your checkout process. Each step has unit tests. Everything looks perfect.
+
+But you changed the format of data passed from step 7 to step 8, and step 8's test uses a mock (fake) version of that data that wasn't updated.
+
+**Without e2e testing**: Users can get all the way to step 8 before hitting an error. Your conversion rate plummets.
+
+**With e2e testing**: Your e2e test walks through all 10 steps with real data, catches the incompatibility immediately.
+
+## Why e2e Testing Used to Be Hard
+
+Historically, e2e testing was:
+- **Time-consuming**: Writing tests required coding skills and lots of time
+- **Brittle**: Tests broke whenever the UI changed slightly
+- **Slow to maintain**: Every UI update meant manually fixing tests
+- **Complex**: Required understanding of testing frameworks, selectors, waits, and error handling
+
+This is why many teams either:
+- Skip e2e testing entirely (risky!)
+- Have a small QA team manually test everything (slow and doesn't scale)
+- Have a large backlog of broken e2e tests nobody maintains (expensive and frustrating)
+
+## The Modern Approach
+
+Today, tools like Autonoma make e2e testing accessible to everyone—not just developers. By using AI to handle the complexity and automatically adapt to changes, e2e testing becomes:
+- Fast to create
+- Easy to maintain
+- Accessible to anyone who can use the application
+
+This means the people who best understand the user workflows (designers, product managers, QA testers, even customer support) can create and maintain the tests themselves.
+
+## Key Takeaways
+
+1. **e2e testing verifies complete user workflows**, not just individual pieces
+2. **It's the only way to be confident your users can accomplish their goals** in your application
+3. **It complements other testing types** by catching issues that unit and integration tests miss
+4. **Modern tools have made e2e testing accessible** to non-technical team members
+5. **Without e2e testing, you're shipping blind**—hoping everything works together but not actually verifying it
+
+## What's Next?
+
+Now that you understand why e2e testing is critical, the next guide will introduce you to Autonoma—the tool that makes creating and maintaining these essential tests surprisingly simple.
+
+---
+
+*Ready to start protecting your users with e2e tests? Continue to [What is Autonoma →](/what-is-autonoma)*

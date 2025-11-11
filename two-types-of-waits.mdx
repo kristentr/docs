@@ -1,0 +1,368 @@
+---
+title: "Two Types of Waits: When to Use Each"
+description: "Master conditional and fixed time waits to build fast, reliable tests that adapt to your application's loading times."
+---
+
+# Two Types of Waits: When to Use Each
+
+## The Two Approaches
+
+You know you need waits. But Autonoma gives you two ways to wait:
+
+**Conditional waits**:
+```
+Wait until: Products load
+```
+
+**Fixed time waits**:
+```
+Wait 3 seconds
+```
+
+Both make your test pause. But they work completely differently. And choosing the wrong one can make your tests slow, flaky, or both.
+
+This guide shows you exactly when to use each—and why one should be your default 95% of the time.
+
+## Conditional Waits: The Smart Wait
+
+When you write:
+```
+Wait until: Products load
+```
+
+Here's what Autonoma does:
+
+1. **Check**: Are products loaded?
+2. **No**: Wait 100ms, check again
+3. **Still no**: Wait 100ms, check again
+4. **Yes**: Proceed immediately to next step
+5. **Timeout**: If products don't load within a reasonable navigation time, fail the test
+
+**Key insight**: Autonoma doesn't wait a fixed amount. It waits *only as long as necessary*.
+
+**Fast load (500ms)**: Test waits 500ms, then continues
+**Slow load (2 seconds)**: Test waits 2 seconds, then continues
+**No load (timeout)**: Test fails with clear error
+
+This is smart waiting. The test adapts to actual load times.
+
+## Fixed Time Waits: The Dumb Wait
+
+When you write:
+```
+Wait 3 seconds
+```
+
+Here's what Autonoma does:
+
+1. Pause for exactly 3 seconds
+2. Proceed to next step
+
+**Doesn't matter if**:
+- The page loaded in 200ms (test still waits full 3 seconds)
+- The page isn't loaded after 3 seconds (test proceeds anyway and fails)
+
+This is dumb waiting. The test doesn't adapt to reality.
+
+## The Difference in Action
+
+Let's see both approaches in a real test:
+
+**Using conditional wait**:
+```
+Test: "View products"
+
+1. Navigate to {{variable:APP_URL}}/products
+2. Wait until: Products load ← Smart wait
+
+- Fast network: Loads in 300ms, test waits 300ms
+- Slow network: Loads in 2s, test waits 2s
+- Broken page: Doesn't load, test fails with "timeout"
+```
+
+**Using fixed time wait**:
+```
+Test: "View products"
+
+1. Navigate to {{variable:APP_URL}}/products
+2. Wait 2 seconds ← Dumb wait
+
+- Fast network: Loads in 300ms, test waits full 2s (1.7s wasted)
+- Slow network: Loads in 3s, test waits only 2s, then fails (not enough time)
+- Broken page: Waits 2s, tries to proceed, fails with confusing error
+```
+
+**Conditional waits adapt. Fixed waits don't.**
+
+## When to Use Conditional Waits (95% of the Time)
+
+Use conditional waits for anything that depends on loading or state changes:
+
+**After navigation**:
+```
+1. Navigate to {{variable:APP_URL}}/checkout
+2. Wait until: Checkout form loads
+```
+
+**After clicking buttons**:
+```
+1. Click "Add to Cart"
+2. Wait until: Cart badge updates
+```
+
+**After form submission**:
+```
+1. Click "Submit"
+2. Wait until: Success message appears
+```
+
+**After filtering or searching**:
+```
+1. Type "laptop" in search
+2. Wait until: Search results display
+```
+
+**After any API call**:
+```
+1. Click "Load More"
+2. Wait until: Additional items appear
+```
+
+**For element visibility**:
+```
+Wait until: Modal dialog appears
+Wait until: Error message displays
+Wait until: Loading spinner disappears
+```
+
+**For content changes**:
+```
+Wait until: Order status changes to "Shipped"
+Wait until: Balance updates
+Wait until: Profile picture changes
+```
+
+**The rule**: If you're waiting for something to happen, use a conditional wait.
+
+## When to Use Fixed Time Waits (5% of the Time)
+
+Use fixed time waits only for these specific scenarios:
+
+**Animations that don't affect state**:
+```
+1. Click "Add to Cart"
+2. Wait until: Cart badge updates ← Conditional wait for state
+3. Wait 1 second ← Fixed wait for badge animation to finish
+4. Take screenshot ← Now animation is complete
+```
+
+**Deliberate pacing for visual clarity**:
+```
+1. Complete form
+2. Wait 2 seconds ← Let user "see" the completed form in test video
+3. Click "Submit"
+```
+
+**Known rate limits or delays**:
+```
+1. Submit API request
+2. Wait 5 seconds ← API has known 5-second processing time
+3. Check result
+```
+
+**Debugging timing issues**:
+```
+1. Click "Submit"
+2. Wait 3 seconds ← Temporary: helps you see what's happening
+3. Verify result
+```
+
+**Notice**: These are edge cases. Most tests never need fixed time waits.
+
+## The Performance Difference
+
+Let's compare test execution time with both approaches.
+
+**Scenario**: Your app has variable load times:
+- Homepage: 200-800ms
+- Product page: 300-1200ms
+- Checkout: 500-1500ms
+
+**Test with conditional waits**:
+```
+1. Navigate to homepage
+2. Wait until: Homepage loads (200-800ms)
+3. Click "Products"
+4. Wait until: Products load (300-1200ms)
+5. Click first product
+6. Wait until: Product page loads (300-1200ms)
+7. Click "Add to Cart"
+8. Wait until: Cart updates (100-400ms)
+9. Navigate to checkout
+10. Wait until: Checkout loads (500-1500ms)
+
+Total: 1400-5100ms (adapts to actual load times)
+```
+
+**Same test with fixed time waits**:
+```
+1. Navigate to homepage
+2. Wait 1 second (always 1000ms, even if loaded in 200ms)
+3. Click "Products"
+4. Wait 2 seconds (always 2000ms)
+5. Click first product
+6. Wait 2 seconds (always 2000ms)
+7. Click "Add to Cart"
+8. Wait 1 second (always 1000ms)
+9. Navigate to checkout
+10. Wait 2 seconds (always 2000ms, but might need 2500ms)
+
+Total: Always 8000ms (wastes time, might fail if loads take longer)
+```
+
+**Result**: Conditional waits are faster on average AND more reliable.
+
+## Combining Both Wait Types
+
+Sometimes you need both in sequence:
+
+```
+Test: "Verify animated success message"
+
+1. Click "Submit"
+2. Wait until: Success message appears ← Conditional: Wait for element
+3. Wait 1 second ← Fixed: Let animation complete
+4. Take screenshot ← Now animation is done
+5. Wait until: Success message disappears ← Conditional: Wait for auto-hide
+```
+
+This pattern is common:
+1. Conditional wait for state change
+2. Fixed wait for visual effect
+3. Conditional wait for next state
+
+## Writing Good Conditional Waits
+
+Your conditional wait descriptions should be clear and specific:
+
+**Good conditional waits**:
+```
+Wait until: Products load
+Wait until: "Add to Cart" button appears
+Wait until: Cart badge shows "1"
+Wait until: Success message displays
+Wait until: Loading spinner disappears
+Wait until: Error text is visible
+```
+
+**Vague conditional waits**:
+```
+Wait until: Page loads ← Too vague, which page?
+Wait until: It's ready ← What is "it"?
+Wait until: Done ← Done with what?
+```
+
+**The key**: Be specific about what you're waiting for. Autonoma's AI will interpret your description and check for that condition.
+
+## Scrolling + Waiting
+
+Autonoma has a special wait type for scrolling:
+
+```
+Scroll until: "Load More" button appears
+```
+
+This combines scrolling with waiting—it scrolls down repeatedly until the condition is met.
+
+Use this when:
+- Content loads as you scroll (infinite scroll)
+- Element is below the fold
+- You need to trigger lazy loading
+
+```
+Test: "Find product in infinite scroll"
+
+1. Navigate to products page
+2. Wait until: Initial products load
+3. Scroll until: Product titled "Laptop Pro 2024" appears ← Scrolls + waits
+4. Click on "Laptop Pro 2024"
+```
+
+## Common Mistakes
+
+**Mistake 1: Using fixed waits for loading**
+```
+Bad:
+1. Navigate to /products
+2. Wait 3 seconds ← Fixed wait for loading
+
+Good:
+1. Navigate to /products
+2. Wait until: Products load ← Conditional wait
+```
+
+**Mistake 2: Not waiting at all**
+```
+Bad:
+1. Click "Submit"
+2. Verify success ← Might fail, no wait!
+
+Good:
+1. Click "Submit"
+2. Wait until: Success message appears
+3. Verify success
+```
+
+**Mistake 3: Waiting too short with fixed waits**
+```
+Bad:
+1. Click "Load More"
+2. Wait 1 second ← Might not be enough
+
+Good:
+1. Click "Load More"
+2. Wait until: New items appear ← Adapts to actual load time
+```
+
+**Mistake 4: Stacking unnecessary fixed waits**
+```
+Bad:
+1. Navigate to page
+2. Wait 2 seconds
+3. Wait 1 second
+4. Wait 3 seconds
+5. Click button
+
+Good:
+1. Navigate to page
+2. Wait until: Page loads
+3. Click button
+```
+
+## The Default Choice
+
+When in doubt:
+
+**"Should I use a conditional or fixed wait?"**
+→ **Conditional.**
+
+**"But I'm not sure what condition to check for..."**
+→ **Describe what should be visible or loaded. Autonoma's AI will interpret it.**
+
+**"What if the condition never happens?"**
+→ **The test will timeout and fail—which is correct! Your app has a problem.**
+
+**"But what if I just want to wait 2 seconds to be safe?"**
+→ **That makes your test slower and doesn't guarantee safety. Use a conditional wait.**
+
+Conditional waits should be your instinct. Fixed waits should be deliberate exceptions.
+
+## What's Next
+
+You now understand the two types of waits and when to use each. Combined with the previous guide on why tests fail, you have a complete mental model for handling timing in tests.
+
+Next, let's explore another common source of test brittleness: how you select elements to interact with.
+
+---
+
+*Ready to learn about robust element selection? Continue to [The Brittle Test Problem →](/the-brittle-test-problem)*

@@ -1,0 +1,606 @@
+---
+title: Integrate With CI/CD
+description: Learn how to integrate Autonoma with your CI/CD pipeline using GitHub Actions, GitLab CI, Bitbucket Pipelines, or cURL to automatically run tests on code changes.
+---
+
+# Integrate With CI/CD
+
+## What is CI/CD and Why Does It Matter?
+
+**CI/CD** stands for **Continuous Integration / Continuous Deployment**—it's the practice of automatically testing and deploying code changes.
+
+Let's break down what this means in plain language:
+
+### Continuous Integration (CI)
+
+**Traditional approach**: Developers work on features for weeks, then try to merge everything together. Often, things break because changes conflict with each other.
+
+**Continuous Integration**: Developers integrate (merge) their code changes frequently—multiple times per day. Every time code is merged, automated tests run to catch problems immediately.
+
+**Analogy**: Instead of writing an entire book and checking for typos at the end (overwhelming!), you check each page as you write it (manageable!).
+
+### Continuous Deployment (CD)
+
+**Traditional approach**: After testing, someone manually deploys the code to production—copying files, restarting servers, hoping nothing goes wrong.
+
+**Continuous Deployment**: Code that passes all tests automatically deploys to production. No manual steps, no human error.
+
+**Analogy**: Instead of manually mailing each customer their order, you have an automated system that ships orders as soon as they're processed.
+
+### Why This Matters for Testing
+
+Without CI/CD:
+- Tests are run manually (slow, easy to forget)
+- Broken code can sit undetected for days
+- Deployments are risky and stressful
+
+With CI/CD:
+- Tests run automatically on every code change
+- Problems are caught within minutes
+- Deployments become boring and routine (which is good!)
+
+## How Autonoma Fits Into CI/CD
+
+Your development workflow probably looks something like this:
+
+1. Developer writes code
+2. Developer creates a Pull Request (PR) / Merge Request
+3. **← Autonoma runs tests here**
+4. Code review happens
+5. Code merges to main branch
+6. **← Autonoma runs tests here**
+7. Code deploys to production
+8. **← Autonoma runs tests here**
+
+By integrating Autonoma at these checkpoints, you catch issues before they reach users.
+
+## Integration Options
+
+Autonoma supports multiple CI/CD platforms. Choose the one your team uses:
+
+### GitHub Actions
+Best for teams using GitHub for version control
+
+### GitLab CI
+Best for teams using GitLab for version control
+
+### Bitbucket Pipelines
+Best for teams using Bitbucket for version control
+
+### cURL (Universal)
+Works with any CI/CD system—Jenkins, CircleCI, Travis, etc.
+
+Let's walk through each one.
+
+## Option 1: GitHub Actions
+
+GitHub Actions is GitHub's built-in automation platform. If your code is on GitHub, this is the easiest option.
+
+### Prerequisites
+
+- Your code must be hosted on GitHub
+- You need admin access to the repository
+- You need your Autonoma API token (we'll show you where to find it)
+
+### Step-by-Step Setup
+
+#### Step 1: Get Your Autonoma API Token
+
+1. Log into Autonoma
+2. Click your profile/avatar icon
+3. Go to **Integrations**
+4. Look for **GitHub Actions** section
+5. Copy your API token
+
+Keep this token secure—it allows running your tests!
+
+#### Step 2: Add Token to GitHub Secrets
+
+GitHub Secrets let you store sensitive information securely:
+
+1. Go to your GitHub repository
+2. Click **Settings**
+3. Navigate to **Secrets and variables** → **Actions**
+4. Click **New repository secret**
+5. Name it: `AUTONOMA_API_TOKEN`
+6. Paste your Autonoma API token
+7. Click **Add secret**
+
+#### Step 3: Get Your Autonoma Configuration
+
+Back in Autonoma:
+1. Still in the Integrations section
+2. You'll see a pre-configured YAML snippet
+3. Copy this entire snippet—it's customized for your account
+
+#### Step 4: Create GitHub Actions Workflow
+
+In your repository:
+
+1. Create a folder: `.github/workflows/` (if it doesn't exist)
+2. Create a file: `.github/workflows/autonoma.yml`
+3. Paste the YAML snippet from Autonoma
+4. Commit and push the file
+
+#### Step 5: Customize When Tests Run
+
+The default configuration runs on every push. You can customize this:
+
+**Run on every Pull Request**:
+```yaml
+on:
+  pull_request:
+    branches: [ main, develop ]
+```
+
+**Run on every push to main**:
+```yaml
+on:
+  push:
+    branches: [ main ]
+```
+
+**Run on both PR and push**:
+```yaml
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+```
+
+**Run on schedule** (e.g., nightly):
+```yaml
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Runs at 2 AM UTC every day
+```
+
+### Step 6: Specify Which Tests to Run
+
+You can run different tests in different scenarios:
+
+**Run smoke tests on every PR**:
+```yaml
+- name: Run Autonoma Smoke Tests
+  run: |
+    curl -X POST https://api.autonoma.app/run \
+      -H "Authorization: Bearer ${{ secrets.AUTONOMA_API_TOKEN }}" \
+      -d "tags=smoke"
+```
+
+**Run full regression before merging**:
+```yaml
+- name: Run Autonoma Regression Tests
+  run: |
+    curl -X POST https://api.autonoma.app/run \
+      -H "Authorization: Bearer ${{ secrets.AUTONOMA_API_TOKEN }}" \
+      -d "tags=regression"
+```
+
+**Run specific folder**:
+```yaml
+- name: Run Checkout Tests
+  run: |
+    curl -X POST https://api.autonoma.app/run \
+      -H "Authorization: Bearer ${{ secrets.AUTONOMA_API_TOKEN }}" \
+      -d "folder=checkout"
+```
+
+**Run a single test**:
+```yaml
+- name: Run Critical Login Test
+  run: |
+    curl -X POST https://api.autonoma.app/run \
+      -H "Authorization: Bearer ${{ secrets.AUTONOMA_API_TOKEN }}" \
+      -d "test_id=abc123"
+```
+
+### How It Works
+
+Once configured:
+
+1. Developer creates a Pull Request
+2. GitHub automatically runs your workflow
+3. Autonoma receives the request and runs your tests
+4. Results appear in the GitHub PR:
+   - ✅ Green checkmark if tests pass
+   - ❌ Red X if tests fail
+5. Team can see test results before merging
+
+**Result**: No broken code reaches your main branch!
+
+## Option 2: GitLab CI
+
+GitLab CI is GitLab's built-in automation platform. If your code is on GitLab, use this option.
+
+### Prerequisites
+
+- Your code must be hosted on GitLab
+- You need maintainer access to the repository
+- You need your Autonoma API token
+
+### Step-by-Step Setup
+
+#### Step 1: Get Your Autonoma API Token
+
+1. Log into Autonoma
+2. Click your profile/avatar icon
+3. Go to **Integrations**
+4. Look for **GitLab CI** section
+5. Copy your API token
+
+#### Step 2: Add Token to GitLab CI/CD Variables
+
+1. Go to your GitLab project
+2. Navigate to **Settings** → **CI/CD**
+3. Expand **Variables**
+4. Click **Add variable**
+5. Key: `AUTONOMA_API_TOKEN`
+6. Value: Paste your token
+7. Check **Mask variable** (hides it in logs)
+8. Click **Add variable**
+
+#### Step 3: Get Your Autonoma Configuration
+
+Back in Autonoma:
+1. Still in the Integrations section
+2. You'll see a pre-configured GitLab CI snippet
+3. Copy this entire snippet
+
+#### Step 4: Create GitLab CI Configuration
+
+In your repository:
+
+1. Create or edit `.gitlab-ci.yml` in the root of your repository
+2. Add the Autonoma job snippet
+3. Commit and push the file
+
+**Example configuration**:
+```yaml
+stages:
+  - test
+
+autonoma_tests:
+  stage: test
+  script:
+    - curl -X POST https://api.autonoma.app/run \
+        -H "Authorization: Bearer $AUTONOMA_API_TOKEN" \
+        -d "tags=smoke"
+  only:
+    - merge_requests
+    - main
+```
+
+### Customizing GitLab CI
+
+**Run only on merge requests**:
+```yaml
+only:
+  - merge_requests
+```
+
+**Run different tests on different branches**:
+```yaml
+smoke_tests:
+  stage: test
+  script:
+    - curl ... -d "tags=smoke"
+  only:
+    - merge_requests
+
+regression_tests:
+  stage: test
+  script:
+    - curl ... -d "tags=regression"
+  only:
+    - main
+```
+
+## Option 3: Bitbucket Pipelines
+
+Bitbucket Pipelines is Bitbucket's built-in automation platform.
+
+### Step-by-Step Setup
+
+#### Step 1: Get Your Autonoma API Token
+
+1. Log into Autonoma
+2. Click your profile/avatar icon
+3. Go to **Integrations**
+4. Look for **Bitbucket** section
+5. Copy your API token
+
+#### Step 2: Add Token to Bitbucket Variables
+
+1. Go to your Bitbucket repository
+2. Navigate to **Repository settings**
+3. Click **Repository variables** (under Pipelines)
+4. Click **Add variable**
+5. Name: `AUTONOMA_API_TOKEN`
+6. Value: Paste your token
+7. Check **Secured** (encrypts the variable)
+8. Click **Add**
+
+#### Step 3: Create Bitbucket Pipeline
+
+In your repository:
+
+1. Create or edit `bitbucket-pipelines.yml` in the root
+2. Add the Autonoma configuration
+3. Commit and push
+
+**Example configuration**:
+```yaml
+pipelines:
+  pull-requests:
+    '**':
+      - step:
+          name: Run Autonoma Tests
+          script:
+            - >
+              curl -X POST https://api.autonoma.app/run
+              -H "Authorization: Bearer $AUTONOMA_API_TOKEN"
+              -d "tags=smoke"
+```
+
+## Option 4: cURL (Universal)
+
+If you use Jenkins, CircleCI, Travis CI, or any other CI/CD system, you can use cURL commands directly.
+
+### What is cURL?
+
+**cURL** is a command-line tool that makes HTTP requests. It's pre-installed on most systems and works everywhere.
+
+Think of it like this: instead of clicking buttons in a web browser, you're telling your computer to visit a URL and perform an action.
+
+### Getting Your cURL Command
+
+1. Log into Autonoma
+2. Go to Integrations
+3. Scroll to **cURL Commands** section
+4. You'll see pre-generated commands for different scenarios
+
+### cURL Command Structure
+
+Here's a basic cURL command for running tests:
+
+```bash
+curl -X POST https://api.autonoma.app/run \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"tags": ["smoke"]}'
+```
+
+Let's break it down:
+
+- `curl` - The command tool
+- `-X POST` - Type of request (POST means we're sending data)
+- `https://api.autonoma.app/run` - Autonoma's API endpoint
+- `-H "Authorization: Bearer YOUR_API_TOKEN"` - Your secret token for authentication
+- `-d '{"tags": ["smoke"]}'` - The data we're sending (run tests tagged "smoke")
+
+### Running Different Test Groups
+
+**Run tests by tag**:
+```bash
+curl -X POST https://api.autonoma.app/run \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -d '{"tags": ["smoke"]}'
+```
+
+**Run tests by folder**:
+```bash
+curl -X POST https://api.autonoma.app/run \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -d '{"folder": "checkout"}'
+```
+
+**Run a specific test**:
+```bash
+curl -X POST https://api.autonoma.app/run \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -d '{"test_id": "test-abc-123"}'
+```
+
+**Run multiple tags** (tests must have ALL tags):
+```bash
+curl -X POST https://api.autonoma.app/run \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -d '{"tags": ["smoke", "authentication"]}'
+```
+
+### Using cURL in Different CI Systems
+
+#### Jenkins
+
+Add an Execute Shell build step:
+```bash
+curl -X POST https://api.autonoma.app/run \
+  -H "Authorization: Bearer ${AUTONOMA_API_TOKEN}" \
+  -d '{"tags": ["smoke"]}'
+```
+
+#### CircleCI
+
+Add to `.circleci/config.yml`:
+```yaml
+jobs:
+  test:
+    steps:
+      - run:
+          name: Run Autonoma Tests
+          command: |
+            curl -X POST https://api.autonoma.app/run \
+              -H "Authorization: Bearer $AUTONOMA_API_TOKEN" \
+              -d '{"tags": ["smoke"]}'
+```
+
+#### Travis CI
+
+Add to `.travis.yml`:
+```yaml
+script:
+  - curl -X POST https://api.autonoma.app/run
+      -H "Authorization: Bearer $AUTONOMA_API_TOKEN"
+      -d '{"tags": ["smoke"]}'
+```
+
+## Best Practices for CI/CD Integration
+
+### 1. Run Different Tests at Different Stages
+
+**On Pull Requests** → Run smoke tests (fast feedback)
+```
+Tags: smoke
+Time: ~5 minutes
+Purpose: Catch critical breaks quickly
+```
+
+**Before Merging** → Run regression tests (thorough check)
+```
+Tags: regression
+Time: ~20 minutes
+Purpose: Comprehensive verification
+```
+
+**After Deployment** → Run smoke tests in production
+```
+Tags: smoke, production-safe
+Time: ~5 minutes
+Purpose: Verify deployment succeeded
+```
+
+### 2. Fail Fast
+
+Configure your CI/CD to stop if Autonoma tests fail:
+
+```yaml
+# Example for GitHub Actions
+- name: Run Tests
+  run: curl ...
+  # If curl returns non-zero (test failed), pipeline stops
+```
+
+This prevents broken code from being deployed.
+
+### 3. Set Up Notifications
+
+Configure notifications so the team knows when tests fail:
+
+**In Autonoma**:
+1. Go to Integrations
+2. Set up Slack notifications
+3. Choose which failures to notify about
+
+**In Your CI/CD System**:
+Most platforms (GitHub, GitLab, etc.) automatically notify on pipeline failures.
+
+### 4. Use Descriptive Job Names
+
+**Bad**:
+```yaml
+- name: Tests
+```
+
+**Good**:
+```yaml
+- name: Autonoma Smoke Tests - Authentication and Checkout
+```
+
+When tests fail, the job name tells you what broke.
+
+### 5. Don't Over-Test
+
+You don't need to run your entire test suite on every single change.
+
+**Smart approach**:
+- Every PR: Smoke tests (5-10 critical tests)
+- Before merge: Regression tests (all tests)
+- Nightly: Regression tests (catches accumulated issues)
+- After deploy: Smoke tests (verification)
+
+## Real-World Integration Examples
+
+### Example 1: Fast-Moving Startup
+
+**Goal**: Ship quickly, catch critical bugs
+
+**Setup**:
+- Run smoke tests on every PR (5 tests, 3 minutes)
+- Run full regression nightly (50 tests, 20 minutes)
+- Run smoke tests after every production deployment
+
+**Result**: Fast feedback loop, critical paths always work
+
+### Example 2: E-Commerce Company
+
+**Goal**: Never break checkout (revenue impact)
+
+**Setup**:
+- Run checkout tests on every PR touching payment code (10 tests, 5 minutes)
+- Run smoke tests on every PR to main (15 tests, 8 minutes)
+- Run full regression before production deploy (100 tests, 45 minutes)
+- Run checkout smoke tests every hour in production
+
+**Result**: Payment flow always works, no lost revenue
+
+### Example 3: Large Enterprise
+
+**Goal**: Comprehensive testing, multiple teams
+
+**Setup**:
+- Each team runs their feature tests on their PRs (10-20 tests, 10 minutes)
+- Run platform-wide smoke tests on merge to develop (30 tests, 15 minutes)
+- Run full regression before staging deploy (200 tests, 90 minutes)
+- Run production smoke tests every 30 minutes
+
+**Result**: Early detection, comprehensive coverage, production monitoring
+
+## Troubleshooting CI/CD Integration
+
+### Tests aren't running
+
+**Check**:
+- Is your API token correct?
+- Is the token properly stored as a secret/variable?
+- Is the workflow/pipeline file in the correct location?
+- Are you triggering the right events (PR, push, etc.)?
+
+### Tests run but always fail
+
+**Check**:
+- Do tests pass when run manually in Autonoma?
+- Is the test environment accessible from CI/CD?
+- Are there environment-specific issues (URLs, credentials)?
+
+### CI/CD times out waiting for tests
+
+**Check**:
+- Are you running too many tests? Run fewer tests more frequently
+- Is there a timeout configuration in your CI/CD? Increase it
+- Are tests stuck on a loading state? Add better waits
+
+### Don't see test results in CI/CD
+
+**Check**:
+- Is the cURL command configured to show output?
+- Are you checking the right logs/build output?
+- Is Autonoma receiving the request? (Check Autonoma dashboard)
+
+## Key Takeaways
+
+1. **CI/CD automates test execution** - no manual test running required
+2. **Catch bugs before they reach users** - tests run automatically on code changes
+3. **Multiple integration options** - GitHub Actions, GitLab CI, Bitbucket, cURL
+4. **Run different tests at different stages** - smoke tests for speed, regression for thoroughness
+5. **Fail fast** - stop the pipeline if critical tests fail
+6. **Smart testing strategy** - don't run all tests everywhere, be strategic
+
+## What's Next
+
+Congratulations! You've completed the onboarding checklist:
+- ✅ Configured your application authentication
+- ✅ Integrated with your CI/CD pipeline
+
+Now you're ready to dive deeper into advanced Autonoma features. The Core Concepts guides will teach you powerful techniques like variables, advanced waiting strategies, and more.

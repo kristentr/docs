@@ -1,0 +1,230 @@
+---
+title: "What is Autonoma"
+description: "Discover Autonoma, the AI-powered platform that makes creating, running, and maintaining end-to-end tests accessible to everyone—no coding required."
+---
+
+# What is Autonoma
+
+## The Testing Revolution
+
+Remember when deploying a website meant manually uploading files via FTP? Then platforms like Vercel came along and changed everything—suddenly, you could ship to production with a single command, no complex setup required.
+
+Autonoma is doing the same thing for e2e testing.
+
+What used to require coding expertise, complex frameworks, and constant maintenance can now be done by anyone who can use an application. Click around your app, describe what you want to test in plain language, and Autonoma turns it into a robust automated test.
+
+## What is Autonoma?
+
+Autonoma is an AI-powered platform that lets you create, run, and maintain end-to-end tests for your web and mobile applications—no coding required.
+
+**Here's the simple version**: You interact with your app (clicking buttons, filling forms, navigating pages) while Autonoma watches and learns. Then you tell Autonoma what to verify ("make sure I see the success message"), and it creates an automated test that can run over and over again.
+
+Think of it like recording a video of yourself using your app, but instead of just recording visuals, Autonoma understands what you're doing and can repeat those actions automatically to verify everything still works.
+
+## Why Autonoma Changes Everything
+
+### The Old Way: Complex and Fragile
+
+Traditional e2e testing with tools like Playwright or Appium meant:
+
+```javascript
+// Traditional test code - requires programming knowledge
+await page.goto('https://example.com');
+await page.click('#signup-button');
+await page.fill('input[name="email"]', 'test@example.com');
+await page.fill('input[name="password"]', 'securePassword123');
+await page.click('button[type="submit"]');
+await expect(page.locator('.welcome-message')).toBeVisible();
+```
+
+**The problems**:
+- Requires coding skills
+- Needs to know technical concepts (selectors, async/await, locators)
+- Breaks when developers change element IDs or classes
+- Takes hours to write and maintain
+- Only developers can create tests
+
+### The Autonoma Way: Visual and Intelligent
+
+With Autonoma, the same test looks like:
+
+1. Click on the sign-up button *(you just click it on the screen)*
+2. Type "test@example.com" in the email field *(you just type it)*
+3. Type the password *(you just type it)*
+4. Click submit *(you just click it)*
+5. "Verify I see the welcome message" *(you just describe what to check)*
+
+**The benefits**:
+- No coding required
+- No technical concepts to learn
+- AI adapts when UI changes (self-healing)
+- Takes minutes to create
+- Anyone can create tests
+
+## How Autonoma Works Under the Hood
+
+You don't need to understand this to use Autonoma, but here's what makes it powerful:
+
+### 1. AI-Powered Interaction Understanding
+
+When you click a button, Autonoma doesn't just remember "click at coordinates 245, 108" (which would break if the button moves). Instead, it understands:
+- What the button does
+- What it says
+- Where it is in the page context
+- Multiple ways to identify it
+
+So when developers move that button or change its styling, Autonoma can still find it and click it.
+
+### 2. Self-Healing Tests
+
+This is huge. Traditional tests break constantly because they're brittle—change one CSS class and dozens of tests fail.
+
+Autonoma's AI monitors your UI and automatically adapts when things change:
+- Button moved? Autonoma finds it in its new location
+- Text changed slightly? Autonoma understands the intent
+- Loading times vary? Autonoma waits intelligently
+
+### 3. Cross-Platform Testing
+
+Autonoma works the same way whether you're testing:
+- Web applications (any browser)
+- iOS apps (any iPhone/iPad model)
+- Android apps (any Android device)
+
+You don't need to learn different tools or approaches for each platform.
+
+### 4. Natural Language Commands
+
+Instead of learning a programming language, you describe what you want in plain language:
+- "Click on the checkout button"
+- "Verify I see the order confirmation"
+- "Wait until the loading spinner disappears"
+- "Scroll until I see the footer"
+
+Autonoma's AI translates your intent into precise test actions.
+
+## Real-World Example: Testing a Login Flow
+
+Let's see how different teams would use Autonoma:
+
+### Scenario: Testing user registration
+
+**QA Tester Sarah** wants to ensure the registration flow works:
+1. Opens Autonoma, navigates to the app
+2. Clicks through the registration process naturally
+3. Adds verifications: "Verify I see the welcome screen"
+4. Runs the test to confirm it works
+5. Done in 5 minutes
+
+**Product Manager James** wants to verify a new onboarding feature:
+1. Goes through the new user flow himself in Autonoma
+2. Adds checks for the new feature: "Verify the tutorial modal appears"
+3. Schedules the test to run daily
+4. Gets Slack alerts if it breaks
+5. No need to file a detailed ticket for QA—he created the test himself
+
+**Designer Maria** changed the button styling:
+1. Re-runs existing registration tests
+2. Tests automatically adapt to new button design
+3. Confirms everything still works functionally
+4. Ships confidently knowing the UI changes didn't break functionality
+
+## The Technology Stack (Simplified)
+
+Autonoma brings together several technologies and makes them work seamlessly:
+
+- **Computer Vision AI**: Understands what's on the screen
+- **Natural Language Processing**: Interprets your commands
+- **Robust Test Execution**: Built on reliable frameworks like Playwright and Appium (but you never see this complexity)
+- **Cloud Infrastructure**: Runs tests on real devices and browsers in the cloud
+- **Intelligent Retries**: Automatically handles flaky tests
+
+You get all the power of professional testing tools with none of the complexity.
+
+## Who Should Use Autonoma?
+
+### Perfect For:
+- **QA Testers** who want to create more tests faster
+- **Product Managers** who want to verify features work correctly
+- **Designers** who want to ensure UI changes don't break functionality
+- **Customer Support** teams who want to catch issues before users do
+- **Developers** who want to spend less time writing test code
+
+### You'll Love Autonoma If:
+- You understand how your application should work for users
+- You want to catch bugs before they reach production
+- You don't want to learn programming to create tests
+- You're tired of manually testing the same flows repeatedly
+- You want tests that don't break with every UI change
+
+## Autonoma vs. Traditional Testing Tools
+
+| Aspect | Traditional Tools (Playwright/Appium) | Autonoma |
+|--------|--------------------------------------|----------|
+| **Coding Required** | Yes, significant | No, zero code |
+| **Learning Curve** | Weeks to months | Minutes to hours |
+| **Test Creation Time** | Hours per test | Minutes per test |
+| **Maintenance** | Manual fixes needed constantly | Self-healing, minimal maintenance |
+| **Who Can Create Tests** | Developers only | Anyone who can use the app |
+| **Adapts to UI Changes** | No, breaks easily | Yes, AI-powered |
+| **Cross-Platform** | Different code for each platform | Same approach for all platforms |
+
+## The Ship Fast Philosophy
+
+Autonoma aligns with modern development practices:
+
+**Modern deployment** (Vercel, Netlify): Ship to production in seconds
+**Modern testing** (Autonoma): Create comprehensive e2e tests in minutes
+
+Just as you shouldn't need to understand server configuration to deploy a website, you shouldn't need to understand testing frameworks to verify your app works.
+
+**The result**: Teams ship faster with more confidence, because everyone can contribute to quality assurance.
+
+## What Makes Autonoma Different
+
+### 1. Designed for Non-Technical Users
+Every feature is built with the assumption that you're not a developer. No hidden complexity, no "just read the API docs."
+
+### 2. AI at the Core
+This isn't automation with some AI sprinkled on top. The AI fundamentally changes how testing works, making it more intuitive and more reliable.
+
+### 3. Enterprise-Grade from Day One
+- SOC 2 Type II compliant
+- SSO support
+- Granular access controls
+- Encryption everywhere
+
+You get startup simplicity with enterprise security.
+
+### 4. Integrates With Your Workflow
+- Run tests in CI/CD pipelines
+- Get Slack alerts when tests fail
+- Schedule tests to run automatically
+- Works alongside your existing tools
+
+## Getting Started is Easy
+
+The Autonoma journey:
+1. **Configure your app** (tell Autonoma where to find it)
+2. **Create your first test** (click around and add verifications)
+3. **Run and refine** (watch it work, make adjustments)
+4. **Automate** (schedule tests, integrate with CI/CD)
+5. **Scale** (create tests for all your critical flows)
+
+Most teams have their first meaningful test running within an hour.
+
+## Key Takeaways
+
+1. **Autonoma makes e2e testing accessible** to everyone, not just developers
+2. **AI-powered self-healing** means tests stay reliable even as your UI changes
+3. **Natural language commands** replace coding knowledge
+4. **Cross-platform support** means one tool for web, iOS, and Android
+5. **Fast to create, easy to maintain**—the modern approach to quality assurance
+
+## What's Next?
+
+Now that you understand what Autonoma is and why it's different, it's time to create your first test. The next guide will walk you through building a real e2e test step by step.
+
+---
+
+*Ready to build your first test? Continue to [Your First Test →](/your-first-test)*

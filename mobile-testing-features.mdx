@@ -1,0 +1,252 @@
+---
+title: "Mobile Testing Features"
+description: "Learn how to test camera-based mobile features like QR code scanning, barcode reading, and document capture in Autonoma."
+---
+
+# Mobile Testing Features
+
+## The Untestable Feature
+
+You're testing a mobile banking app. Everything works—login, account views, transfers. Then you hit the "Scan QR Code to Pay" feature.
+
+You stare at the button. How do you test this?
+
+The feature requires:
+1. Opening the device camera
+2. Pointing it at a QR code
+3. Scanning and processing the code
+4. Completing the payment
+
+In traditional testing, this is where automation stops. You can't physically point a test device's camera at a QR code. You can't simulate camera input without complex mocking that doesn't test reality. **So you skip it and test manually.**
+
+But here's the thing: QR codes, camera scanning, and photo-based features are increasingly critical to mobile apps. Payment apps need QR scanning. E-commerce apps need photo returns. Wallet apps need document scanning.
+
+**If you can't test these features, you're not really testing your mobile app.**
+
+This guide shows you how Autonoma makes camera-based testing as simple as clicking a button.
+
+## The Problem with Camera Features
+
+Let's understand why camera testing seems impossible.
+
+When your app accesses the camera, it's talking directly to device hardware. Testing tools run at the software level—they can tap buttons and read text, but they can't control physical cameras or create real camera input.
+
+Traditional solutions:
+- **Mock the camera**: Replace camera logic with test code (doesn't test real behavior)
+- **Manual testing only**: A human physically scans QR codes every time (slow, inconsistent)
+- **Skip the feature**: Hope it works and catch bugs in production (risky)
+
+None of these are good. The first doesn't test reality. The second doesn't scale. The third is gambling with your users' experience.
+
+## How Autonoma Solves This
+
+Autonoma introduces a simple concept: **Set the camera image before opening the camera.**
+
+Think of it like this: Instead of trying to physically show a QR code to the camera, you tell Autonoma "when the camera opens, use THIS image." Autonoma loads that image into the device's camera, so when your app reads the camera, it sees your test image.
+
+It's the same approach as file uploads—prepare the input before the feature asks for it.
+
+## Testing Your First QR Code
+
+Let's build a test for a payment app's QR code feature.
+
+**Step 1: Prepare your QR code image**
+
+Before building the test, create or download a test QR code image. Save it as `test-qr-code.png`. This should be a real QR code that your app can process—maybe one that triggers a test payment or links to a test merchant.
+
+**Step 2: Start your test**
+
+Begin with standard navigation:
+
+```
+Test: "Scan QR code to make payment"
+
+1. Navigate to payment screen
+2. Wait until: "Scan QR Code" button appears
+```
+
+**Step 3: Set the camera image**
+
+In Autonoma, use the "Set Camera Image" action (available in mobile test building). Upload your `test-qr-code.png` file.
+
+This tells Autonoma: "When the camera opens, show this image."
+
+**Step 4: Open the camera**
+
+Now tap the button in your app that opens the camera:
+
+```
+3. Set camera image: test-qr-code.png ← Prepare the image
+4. Tap "Scan QR Code" button ← Open camera in app
+5. Wait until: QR code scans successfully
+```
+
+When step 4 runs, your app opens the camera. But instead of showing whatever the physical camera sees, Autonoma provides your test QR code image. Your app processes it just like a real scan.
+
+**Step 5: Verify the result**
+
+Complete your test by verifying the QR code was processed correctly:
+
+```
+6. Wait until: Payment details screen appears
+7. Wait until: Merchant name displays correctly
+8. Tap "Confirm Payment"
+9. Wait until: "Payment successful" message appears
+```
+
+**The complete test**:
+
+```
+Test: "Scan QR code to make payment"
+
+1. Navigate to payment screen
+2. Wait until: "Scan QR Code" button appears
+3. Set camera image: test-qr-code.png ← Prepare test QR code
+4. Tap "Scan QR Code" button ← App opens camera
+5. Wait until: QR code scans successfully
+6. Wait until: Payment details screen appears
+7. Wait until: Merchant name displays correctly
+8. Tap "Confirm Payment"
+9. Wait until: "Payment successful" message appears
+```
+
+You've just automated a feature that seemed impossible to test.
+
+## Real-World Camera Testing Scenarios
+
+**Digital wallet with ID scanning**:
+```
+Test: "Add driver's license to wallet"
+
+1. Open wallet app
+2. Tap "Add ID"
+3. Tap "Scan Driver's License"
+4. Set camera image: test-drivers-license-front.png
+5. Tap "Scan Front"
+6. Wait until: Front scan completes
+7. Set camera image: test-drivers-license-back.png
+8. Tap "Scan Back"
+9. Wait until: Back scan completes
+10. Wait until: "ID verified" message appears
+```
+
+**Product barcode scanning**:
+```
+Test: "Add product via barcode scan"
+
+1. Navigate to inventory screen
+2. Tap "Add Product"
+3. Tap "Scan Barcode"
+4. Set camera image: test-barcode-product-123.png
+5. Wait until: Camera opens
+6. Wait until: Barcode recognized
+7. Wait until: Product "Widget 123" appears
+8. Tap "Add to Inventory"
+9. Wait until: "Product added" confirmation
+```
+
+**Receipt scanning for expense tracking**:
+```
+Test: "Upload expense receipt"
+
+1. Navigate to expenses
+2. Tap "New Expense"
+3. Tap "Scan Receipt"
+4. Set camera image: test-receipt.png
+5. Wait until: Camera opens
+6. Wait until: Receipt scanned
+7. Wait until: Amount auto-populates
+8. Verify amount matches expected value
+9. Tap "Submit Expense"
+10. Wait until: Expense appears in list
+```
+
+**Authentication via QR code**:
+```
+Test: "Login via QR code scan"
+
+1. Open app (logged out)
+2. Tap "Login with QR Code"
+3. Set camera image: test-auth-qr.png
+4. Tap "Scan QR Code"
+5. Wait until: Camera opens
+6. Wait until: QR code recognized
+7. Wait until: Dashboard loads
+8. Verify user is logged in
+```
+
+## Platform Availability
+
+**Android**: Camera image setting is available now. You can test QR codes, barcodes, document scanning, and any camera-based feature.
+
+**iOS**: Camera image testing is coming soon. Check your Autonoma dashboard for updates on iOS availability.
+
+**Web**: Camera testing is not applicable for web tests (use file uploads instead—see [Testing File Uploads](/testing-file-uploads)).
+
+## Tips for Effective Camera Testing
+
+**Use realistic test images**:
+Your test QR codes, barcodes, and documents should be realistic. If your app validates QR code format, use properly formatted codes. If it checks ID security features, use images that pass basic validation.
+
+**Test different scenarios**:
+```
+Test 1: "Scan valid QR code" (happy path)
+Test 2: "Scan invalid QR code" (error handling)
+Test 3: "Scan corrupted QR code" (edge case)
+```
+
+Don't just test the happy path. Test how your app handles bad input.
+
+**Set camera image right before opening camera**:
+```
+1. Navigate to scanner screen
+2. Set camera image ← Right before...
+3. Tap "Open Camera" ← ...this action
+```
+
+The timing matters. Set the image immediately before triggering the camera.
+
+**Test sequential scans**:
+If your app scans multiple images in one flow (like front/back of an ID), set the camera image before each scan:
+```
+1. Set camera image: front.png
+2. Tap "Scan Front"
+3. Wait until: Front scan completes
+4. Set camera image: back.png ← New image for next scan
+5. Tap "Scan Back"
+```
+
+## What Camera Testing Enables
+
+Think about all the mobile features you couldn't test before:
+
+- Payment apps: QR code payments, bill scanning
+- Banking apps: Check deposits, card scanning
+- Retail apps: Barcode scanning, price checking
+- Healthcare apps: Insurance card scanning, prescription reading
+- Travel apps: Boarding pass scanning, passport scanning
+- Social apps: QR friend codes, AR features
+- Logistics apps: Package scanning, inventory management
+
+**Every one of these can now be fully automated.**
+
+## The Bigger Picture
+
+Camera testing is part of a larger principle: **Autonoma brings automation to features that were previously "manual testing only."**
+
+We've covered three of these in recent guides:
+- **File uploads**: Upload files before your app requests them
+- **Data extraction**: Capture app-generated values for later verification
+- **Camera input**: Set images before your app opens the camera
+
+Each follows the same pattern: Prepare the input in Autonoma before your application asks for it. This makes the "impossible" features testable.
+
+## What's Next
+
+You now know how to test camera-based features on mobile—a capability that unlocks full e2e testing for apps that were previously only partially automatable.
+
+In the next guide, we'll explore how to handle one of the most common test management needs: using variables to avoid updating tests one by one.
+
+---
+
+*Ready to learn about variables? Continue to [Using Variables for Test Parametrization →](/variables)*

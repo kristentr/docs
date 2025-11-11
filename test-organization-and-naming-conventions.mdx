@@ -1,0 +1,642 @@
+---
+title: "Test Organization and Naming Conventions"
+description: "Learn how to organize your growing test suite using folders, naming conventions, and tags to maintain clarity and efficiency as you scale."
+---
+
+# Test Organization and Naming Conventions
+
+## Why Organization Matters
+
+You've created your first few tests. They work great! But fast forward three months—you now have 50 tests. Six months later, 150 tests. How do you find the right test? How do you know which tests to run before a release? Which tests cover the checkout flow?
+
+Without a solid organization system, your test suite becomes chaotic. Tests get duplicated, important workflows go untested, and nobody knows what breaks when a test fails.
+
+**Good organization from the start** saves countless hours later.
+
+Think of it like organizing a library. You could pile all books in random stacks, but it would be impossible to find anything. Libraries use sections, categories, and clear labeling—your test suite deserves the same care.
+
+## The Three Pillars of Test Organization
+
+Autonoma gives you three powerful tools to organize tests:
+
+1. **Folders** - Physical organization (like file cabinets)
+2. **Naming Conventions** - Clear identification (like book titles)
+3. **Tags** - Flexible grouping (like genres that cross cabinet boundaries)
+
+Let's explore each one.
+
+## Pillar 1: Folders - Physical Organization
+
+### What Are Folders?
+
+Folders let you group related tests together. Think of them as drawers in a filing cabinet—each drawer contains tests about a specific part of your application.
+
+### Folder Organization Strategies
+
+The best folder structure depends on your team size and application complexity. Here are proven approaches:
+
+#### Strategy 1: Organize by Feature (Recommended for Most Teams)
+
+Group tests by the feature they test:
+
+```
+📁 Authentication
+  ├─ Login with email and password
+  ├─ Login with magic link
+  ├─ Logout flow
+  ├─ Password reset
+  └─ Session timeout
+
+📁 Shopping Cart
+  ├─ Add single item to cart
+  ├─ Add multiple items to cart
+  ├─ Update cart quantities
+  ├─ Remove items from cart
+  └─ Clear cart
+
+📁 Checkout
+  ├─ Checkout as guest
+  ├─ Checkout with saved payment
+  ├─ Apply discount code
+  └─ Complete purchase with credit card
+
+📁 User Profile
+  ├─ Update profile information
+  ├─ Change password
+  ├─ Upload profile picture
+  └─ Delete account
+```
+
+**Benefits**:
+- Easy to find tests related to a feature
+- Clear ownership (feature teams own their test folders)
+- Scales well as you add features
+
+**When to use**: Most teams, especially those organized by feature squads
+
+#### Strategy 2: Organize by User Journey (Good for Flow-Heavy Apps)
+
+Group tests by complete user journeys:
+
+```
+📁 New User Journey
+  ├─ Sign up flow
+  ├─ Email verification
+  ├─ Complete onboarding
+  └─ First purchase
+
+📁 Returning User Journey
+  ├─ Login
+  ├─ Browse catalog
+  ├─ Add to cart
+  └─ Repeat purchase
+
+📁 Admin Journey
+  ├─ Admin login
+  ├─ User management
+  ├─ Content moderation
+  └─ Analytics dashboard
+```
+
+**Benefits**:
+- Tests reflect actual user experiences
+- Easy to ensure critical paths are covered
+- Great for onboarding and understanding user flows
+
+**When to use**: Apps with distinct user types or journey-based testing priorities
+
+#### Strategy 3: Organize by Team (Good for Large Organizations)
+
+If you have multiple teams working on the same application:
+
+```
+📁 Payments Team
+  📁 Checkout
+  📁 Billing
+  📁 Refunds
+
+📁 Content Team
+  📁 Articles
+  📁 Media Upload
+  📁 Publishing Workflow
+
+📁 Platform Team
+  📁 Authentication
+  📁 User Management
+  📁 Permissions
+```
+
+**Benefits**:
+- Clear ownership and accountability
+- Teams can work independently
+- Easy to track team-specific test coverage
+
+**When to use**: Large teams (10+ people) with clear team boundaries
+
+### Folder Best Practices
+
+**1. Keep folder hierarchies shallow** (2-3 levels max)
+
+**Bad** (too deep):
+```
+📁 E-commerce
+  📁 Shopping
+    📁 Cart
+      📁 Add Items
+        📁 Single Item
+          ├─ Add product from catalog
+```
+
+**Good** (shallow):
+```
+📁 Shopping Cart
+  ├─ Add single item
+  ├─ Add multiple items
+```
+
+**2. Use clear, descriptive folder names**
+- "Authentication" not "Auth"
+- "Shopping Cart" not "Cart"
+- "User Profile" not "Profile"
+
+**3. Create folders proactively**
+Don't wait until you have 20 unsorted tests. Create logical folders from the start.
+
+**4. Keep related tests together**
+All cart tests in one folder, all checkout tests in another.
+
+## Pillar 2: Naming Conventions - Clear Identification
+
+### Why Test Names Matter
+
+A test name is the first thing you see when it fails. A good name tells you immediately:
+- What broke
+- Where to look for the problem
+- How critical it is
+
+### The Anatomy of a Good Test Name
+
+A well-named test follows this pattern:
+
+```
+[Feature] - [Specific Scenario] - [Expected Outcome]
+```
+
+**Examples**:
+- `Checkout - Apply 20% discount code - Verify price update`
+- `Login - Invalid password - Verify error message`
+- `Shopping Cart - Add three items - Verify cart badge shows 3`
+
+### Naming Patterns That Work
+
+#### Pattern 1: Feature + Action + Verification
+
+```
+Login - Email and password - Successful login
+Shopping Cart - Update quantity - Cart total updates
+Checkout - Invalid credit card - Show error message
+Profile - Change password - Success confirmation
+```
+
+**Use when**: Testing specific interactions within features
+
+#### Pattern 2: User Goal-Based
+
+```
+Complete purchase as guest user
+Register new account with email verification
+Reset forgotten password successfully
+Cancel active subscription
+```
+
+**Use when**: Testing complete workflows from a user perspective
+
+#### Pattern 3: Error State Testing
+
+```
+Login - Too many failed attempts - Account locked
+Checkout - Expired card - Payment declined message
+Profile - Email already exists - Show duplicate error
+Cart - Out of stock item - Remove from cart
+```
+
+**Use when**: Specifically testing error handling and edge cases
+
+### Real-World Examples
+
+Let's see how naming makes a difference:
+
+**Bad naming**:
+```
+Test 1
+Login test
+Cart
+Button click
+Verify success
+```
+
+**When "Cart" fails, what broke?** The entire cart? Adding items? Removing items? You have no idea.
+
+**Good naming**:
+```
+Login - Valid credentials - Dashboard loads
+Shopping Cart - Add single product - Cart badge updates
+Shopping Cart - Remove all items - Empty cart message
+Checkout - Complete purchase - Order confirmation displayed
+Profile - Update email - Verification sent
+```
+
+**When "Shopping Cart - Remove all items - Empty cart message" fails**, you know exactly what broke: the empty cart message after removing items.
+
+### Naming Best Practices
+
+**1. Be specific, not vague**
+- "Login - Email and password - Successful login" not "Login test"
+- "Checkout - Apply SAVE20 code - 20% discount applied" not "Discount code"
+
+**2. Include the expected outcome**
+- "Add to Cart - Verify badge updates" not just "Add to Cart"
+- "Delete account - Verify confirmation modal" not just "Delete account"
+
+**3. Describe the test, don't number it**
+- "Registration - Valid email - Welcome email sent" not "Registration Test 1"
+
+**4. Use consistent terminology**
+Pick terms and stick with them:
+- "Login" not a mix of "Login", "Sign in", "Auth"
+- "Shopping Cart" not a mix of "Cart", "Basket", "Shopping Bag"
+
+**5. Front-load important information**
+Start with the feature/area, so tests sort logically:
+- "Checkout - Guest user" not "Guest user checkout"
+- "Profile - Update email" not "Update email in profile"
+
+## Pillar 3: Tags - Flexible Grouping
+
+### What Are Tags?
+
+Tags are labels you attach to tests to group them logically across folder boundaries. A single test can have multiple tags.
+
+Think of tags like genres in a music library. A song exists in one album (folder), but it can be tagged as "rock", "90s", "guitar-heavy" allowing you to create different playlists without moving the file.
+
+### Common Tag Strategies
+
+#### Critical Path Tags
+
+**Tag tests by criticality:**
+
+- `smoke` - Critical tests that must pass before any release
+- `regression` - Comprehensive tests to run before major releases
+- `optional` - Nice-to-have tests that can be skipped if time is short
+
+**Example usage**:
+```
+Test: "Checkout - Complete purchase - Credit card"
+Tags: smoke, regression
+(This is a critical path—must work!)
+
+Test: "Profile - Change theme preference - Dark mode"
+Tags: regression, optional
+(Important but not critical)
+```
+
+#### Environment Tags
+
+**Tag tests by where they should run:**
+
+- `staging` - Tests safe to run in staging
+- `production` - Tests safe to run in production (read-only)
+- `local` - Tests for local development
+
+#### Feature Tags
+
+**Tag tests by feature or epic:**
+
+- `authentication`
+- `payments`
+- `onboarding`
+- `mobile-only`
+- `web-only`
+
+This lets you run all tests related to a feature, even if they're in different folders.
+
+### Tag Naming Best Practices
+
+**1. Use lowercase, kebab-case**
+- `smoke-test` not `Smoke Test`
+- `critical-path` not `CRITICAL_PATH`
+
+**2. Keep tags short and memorable**
+- `smoke` not `smoke-test-suite-critical-path`
+- `auth` not `authentication-and-authorization`
+
+**3. Define a tag taxonomy upfront**
+Create a short list of approved tags to avoid chaos:
+- `smoke`, `regression`, `optional` (criticality)
+- `web`, `ios`, `android` (platform)
+- `staging`, `production` (environment)
+- Feature-specific tags as needed
+
+**4. Don't over-tag**
+3-5 tags per test maximum. Too many tags defeats the purpose.
+
+### Tags vs. Folders: When to Use Each
+
+**Use folders when:**
+- Tests are related to the same feature/area
+- You want physical organization
+- The relationship is permanent
+
+**Use tags when:**
+- Tests span multiple features but share a characteristic
+- You need flexible grouping
+- The relationship might change
+
+**Example**:
+
+```
+📁 Checkout (folder - physical organization)
+
+  Test: "Complete purchase - Credit card"
+  Tags: smoke, regression, payments
+
+  Test: "Apply discount code"
+  Tags: regression, promotions
+
+  Test: "Checkout as guest"
+  Tags: smoke, guest-flow
+```
+
+The `Checkout` folder groups all checkout tests physically, but tags let you run "all smoke tests" across all features, or "all guest-flow tests" regardless of feature.
+
+## Understanding Test Types
+
+As you organize tests, you'll hear terms like "smoke test" and "regression test." Here's what they mean:
+
+### Smoke Tests
+
+**Definition**: Quick tests of critical functionality to ensure the application is basically working.
+
+**Analogy**: Like checking if your car starts, has gas, and the brakes work before a road trip. You're not testing everything, just "is it safe to proceed?"
+
+**Characteristics**:
+- Fast (5-10 tests total, running in minutes)
+- Cover only critical paths
+- Run before every deployment
+- Must pass before anything else
+
+**Example smoke tests**:
+- User can log in
+- Homepage loads
+- User can add item to cart and checkout
+- Payment processing works
+- User can create new account
+
+**When smoke tests fail**: STOP. Don't deploy. Don't run more tests. Fix it now.
+
+### Regression Tests
+
+**Definition**: Comprehensive tests to ensure new changes haven't broken existing functionality.
+
+**Analogy**: Like a full car inspection before a long trip—checking engine, tires, lights, fluid levels, everything.
+
+**Characteristics**:
+- More comprehensive (might be all your tests)
+- Takes longer to run
+- Run before major releases
+- Catches edge cases and less-common paths
+
+**Example regression tests**:
+- All smoke tests PLUS
+- Error handling (invalid inputs, network errors)
+- Edge cases (empty cart, special characters in names)
+- Multiple user types (admin, guest, premium)
+- Different browsers/devices
+
+**When regression tests fail**: Investigate. Might be a real bug, might be a test that needs updating.
+
+### How to Tag Tests
+
+Start with criticality tagging:
+
+**Week 1**: Create smoke tests
+- Tag 5-10 tests as `smoke`
+- These cover absolute must-work scenarios
+- Should run in under 5 minutes
+
+**Week 2-4**: Expand to regression
+- Tag comprehensive tests as `regression`
+- Include smoke tests in regression (smoke ⊆ regression)
+- Run before releases
+
+**Ongoing**: Tag by feature/area
+- Add feature-specific tags as you build tests
+- Use for focused test runs
+
+## Running Tests with Tags
+
+One of the most powerful features of tags is running specific test groups:
+
+### Via Autonoma UI
+Schedule runs for specific tags:
+- Daily: Run `smoke` tests
+- Weekly: Run `regression` tests
+- On-demand: Run `checkout` tests when working on that feature
+
+### Via CI/CD
+Use tags to run different tests in different contexts:
+
+```bash
+# Run smoke tests on every commit
+curl [autonoma-api] --tags smoke
+
+# Run full regression before production deploy
+curl [autonoma-api] --tags regression
+
+# Run only payment tests when payment code changes
+curl [autonoma-api] --tags payments
+```
+
+We'll cover CI/CD integration in detail in the Integrate With CI/CD guide.
+
+## Scheduling Tests to Run Automatically
+
+Once your tests are organized, you should run them automatically, not just manually.
+
+### Recommended Schedule
+
+**Smoke tests** → Run frequently
+- After every deployment
+- Hourly in production (if read-only)
+- On every pull request
+
+**Regression tests** → Run regularly
+- Before major releases
+- Nightly
+- Weekly
+
+**Feature-specific tests** → Run on-demand
+- When working on that feature
+- Before merging feature branches
+
+### How to Schedule in Autonoma
+
+1. Go to your test or folder
+2. Click "Schedule"
+3. Choose frequency (hourly, daily, weekly)
+4. Select tag or folder to run
+5. Set up notifications (Slack, email)
+
+**Pro tip**: Schedule smoke tests to run in production (if they're read-only operations like viewing pages, checking elements). This gives you continuous monitoring that your live app works.
+
+## Putting It All Together: A Complete Example
+
+Let's see how folders, names, and tags work together:
+
+```
+📁 Authentication (folder)
+  ├─ Login - Email and password - Dashboard loads
+     Tags: smoke, regression, auth
+
+  ├─ Login - Invalid password - Error message displayed
+     Tags: regression, auth, error-handling
+
+  ├─ Login - Locked account - Account locked message
+     Tags: regression, auth, error-handling
+
+  ├─ Password Reset - Valid email - Reset link sent
+     Tags: regression, auth
+
+  └─ Logout - Click logout - Redirect to login page
+     Tags: smoke, regression, auth
+
+📁 Shopping Cart (folder)
+  ├─ Add to Cart - Single product - Cart badge updates
+     Tags: smoke, regression, cart
+
+  ├─ Add to Cart - Multiple products - All items shown
+     Tags: regression, cart
+
+  ├─ Remove from Cart - Single item - Cart updates
+     Tags: regression, cart
+
+  └─ Clear Cart - Remove all - Empty cart message
+     Tags: regression, cart
+
+📁 Checkout (folder)
+  ├─ Checkout - Complete purchase - Credit card payment
+     Tags: smoke, regression, checkout, payments
+
+  ├─ Checkout - Apply discount code - Price updates
+     Tags: regression, checkout, promotions
+
+  └─ Checkout - Invalid card - Error message shown
+     Tags: regression, checkout, payments, error-handling
+```
+
+**Organization benefits**:
+
+1. **Folders** group related tests logically
+2. **Names** describe exactly what each test does
+3. **Tags** let you run groups across folders:
+   - `smoke`: 4 critical tests
+   - `regression`: All tests
+   - `error-handling`: All error scenario tests
+   - `payments`: All payment-related tests
+
+## Migration Strategy: Organizing Existing Tests
+
+Already have tests but they're disorganized? Here's how to fix it:
+
+### Phase 1: Audit (Week 1)
+1. List all existing tests
+2. Identify duplicates or outdated tests
+3. Delete or archive obsolete tests
+
+### Phase 2: Categorize (Week 1-2)
+1. Group tests by feature/area
+2. Create folder structure
+3. Move tests into folders
+
+### Phase 3: Rename (Week 2-3)
+1. Rename tests following naming conventions
+2. Make names descriptive and consistent
+3. Front-load feature names
+
+### Phase 4: Tag (Week 3-4)
+1. Tag critical tests as `smoke`
+2. Tag comprehensive tests as `regression`
+3. Add feature-specific tags
+
+### Phase 5: Schedule (Week 4)
+1. Schedule smoke tests to run daily
+2. Schedule regression tests to run weekly
+3. Set up notifications
+
+## Common Organization Mistakes to Avoid
+
+### Mistake 1: Everything in Root Folder
+**Problem**: 100 tests with no folders
+**Solution**: Create feature-based folders immediately
+
+### Mistake 2: Too Many Folders
+**Problem**: Folder for every single test
+**Solution**: Group related tests—aim for 5-15 tests per folder
+
+### Mistake 3: Inconsistent Naming
+**Problem**: Mix of "Login", "Sign In", "Auth", "Authentication"
+**Solution**: Pick one term and use it everywhere
+
+### Mistake 4: Tag Explosion
+**Problem**: 47 different tags with no clear purpose
+**Solution**: Define 10-15 core tags, use them consistently
+
+### Mistake 5: No Smoke Tests Identified
+**Problem**: Don't know which tests are critical
+**Solution**: Tag your 5-10 most critical tests as `smoke`
+
+## Quick Reference: Organization Checklist
+
+Use this checklist to ensure good organization:
+
+**Folders**:
+- [ ] Tests grouped logically by feature/journey
+- [ ] Folder names are clear and consistent
+- [ ] Folder hierarchy is shallow (2-3 levels max)
+- [ ] 5-15 tests per folder (not too few, not too many)
+
+**Names**:
+- [ ] Test names describe feature + scenario + outcome
+- [ ] Names are specific, not vague
+- [ ] Consistent terminology throughout
+- [ ] Important information front-loaded
+
+**Tags**:
+- [ ] Smoke tests identified and tagged
+- [ ] Regression tests tagged
+- [ ] Feature/area tags applied
+- [ ] 3-5 tags per test maximum
+- [ ] Tag taxonomy documented
+
+**Scheduling**:
+- [ ] Smoke tests scheduled to run frequently
+- [ ] Regression tests scheduled regularly
+- [ ] Notifications configured for failures
+
+## Key Takeaways
+
+1. **Use folders for physical organization** by feature or team
+2. **Use descriptive names** that explain what the test does
+3. **Use tags for flexible grouping** across folders
+4. **Identify smoke tests** - your critical path tests
+5. **Schedule tests to run automatically** - don't rely on manual runs
+6. **Keep it simple** - don't over-organize with too many folders or tags
+7. **Be consistent** - pick patterns and stick with them
+
+## What's Next
+
+Now that you understand how to organize your tests for scale, you're ready to tackle one of the most common challenges: configuring authentication for your application. The next guide will walk you through various login approaches.
+
+---
+
+*Ready to configure authentication? Continue to Configure Your Application*

@@ -1,0 +1,357 @@
+---
+title: "Components: Write Once, Use Everywhere"
+description: "Learn how to eliminate repetitive test logic by creating reusable test components that can be referenced across all your tests."
+---
+
+# Components: Write Once, Use Everywhere
+
+## The Copy-Paste Problem
+
+You've built 20 tests. Every single one starts the same way:
+
+```
+1. Navigate to {{variable:APP_URL}}/login
+2. Wait until: Login form loads
+3. Type {{variable:TEST_EMAIL}} in email field
+4. Type {{variable:TEST_PASSWORD}} in password field
+5. Click "Sign In"
+6. Wait until: Dashboard loads
+```
+
+Then the actual test begins—whatever unique thing you're testing.
+
+This works. But now imagine your login flow changes. Maybe you add two-factor authentication. Or the button text changes from "Sign In" to "Log In". Or the dashboard takes longer to load.
+
+**You need to update all 20 tests.** One by one. Open, edit, save. Repeat 19 more times.
+
+There's a better way. Write the login logic once, reference it everywhere. When it changes, update once—all 20 tests automatically get the fix.
+
+**This is what components do.**
+
+## What Are Components?
+
+Components are tests that other tests can reference and reuse.
+
+Think of them like functions in programming—write once, call anywhere. Or like a recipe you reference in multiple meal plans instead of writing out the steps each time.
+
+**A component is just a regular test** that you've marked as reusable. Other tests can include it as a single step, and Autonoma automatically expands it during execution.
+
+## Creating Your First Component
+
+Let's turn that repetitive login logic into a component.
+
+**Step 1: Build the login test**
+
+Create a test called "Login as Test User":
+
+```
+Test: "Login as Test User"
+
+1. Navigate to {{variable:APP_URL}}/login
+2. Wait until: Login form loads
+3. Type {{variable:TEST_EMAIL}} in email field
+4. Type {{variable:TEST_PASSWORD}} in password field
+5. Click "Sign In"
+6. Wait until: Dashboard loads
+```
+
+**Step 2: Mark it as a component**
+
+In Autonoma, mark this test as a "Component" (the exact UI varies, but you'll find an option to designate tests as reusable components).
+
+That's it. You've created a component.
+
+**Step 3: Use it in other tests**
+
+Now build a test that needs login:
+
+```
+Test: "View profile information"
+
+1. Run component: "Login as Test User" ← Single step!
+2. Navigate to {{variable:APP_URL}}/profile
+3. Wait until: Profile page loads
+4. Verify name displays correctly
+5. Verify email displays correctly
+```
+
+When this test runs, step 1 expands into all 6 steps of the login component. Your test effectively has 10 steps (6 from login + 4 unique steps), but you only had to write 5.
+
+## The Power of Components
+
+Let's see components in action across multiple tests.
+
+**Component: "Login as Test User"** (defined once):
+```
+1. Navigate to {{variable:APP_URL}}/login
+2. Wait until: Login form loads
+3. Type {{variable:TEST_EMAIL}} in email field
+4. Type {{variable:TEST_PASSWORD}} in password field
+5. Click "Sign In"
+6. Wait until: Dashboard loads
+```
+
+**Test 1: "View order history"**:
+```
+1. Run component: "Login as Test User"
+2. Navigate to {{variable:APP_URL}}/orders
+3. Wait until: Orders load
+4. Verify orders display correctly
+```
+
+**Test 2: "Update profile"**:
+```
+1. Run component: "Login as Test User"
+2. Navigate to {{variable:APP_URL}}/profile
+3. Click "Edit Profile"
+4. Update name
+5. Click "Save"
+6. Verify changes saved
+```
+
+**Test 3: "Change password"**:
+```
+1. Run component: "Login as Test User"
+2. Navigate to {{variable:APP_URL}}/settings
+3. Click "Change Password"
+4. Type new password
+5. Click "Save"
+6. Verify success message
+```
+
+**Now imagine your login flow changes.** Update the component once. All three tests (and any others using it) instantly get the update.
+
+## Common Components to Create
+
+Most teams create components for these repeated patterns:
+
+**Login components**:
+```
+"Login as Test User"
+"Login as Admin"
+"Login as Merchant"
+```
+
+**Setup components**:
+```
+"Add Product to Cart"
+"Create New Customer"
+"Set Up Test Environment"
+```
+
+**Teardown components**:
+```
+"Clear Cart"
+"Delete Test Data"
+"Log Out"
+```
+
+**Common workflows**:
+```
+"Complete Checkout"
+"Submit Support Ticket"
+"Upload Profile Picture"
+```
+
+## Components with Variables
+
+Here's where components become really powerful: They can accept variables.
+
+**Component: "Login as User"** (generic):
+```
+1. Navigate to {{variable:APP_URL}}/login
+2. Wait until: Login form loads
+3. Type {{variable:EMAIL}} in email field
+4. Type {{variable:PASSWORD}} in password field
+5. Click "Sign In"
+6. Wait until: Dashboard loads
+```
+
+Notice it uses `{{variable:EMAIL}}` and `{{variable:PASSWORD}}` instead of specific values.
+
+**Now you can reuse it with different credentials**:
+
+Test 1 - Login as regular user:
+```
+1. Set variable EMAIL = {{variable:TEST_EMAIL}}
+2. Set variable PASSWORD = {{variable:TEST_PASSWORD}}
+3. Run component: "Login as User"
+4. Test regular user features...
+```
+
+Test 2 - Login as admin:
+```
+1. Set variable EMAIL = {{variable:ADMIN_EMAIL}}
+2. Set variable PASSWORD = {{variable:ADMIN_PASSWORD}}
+3. Run component: "Login as User"
+4. Test admin features...
+```
+
+**Same component, different variables.** One component handles all user types.
+
+## Nested Components
+
+Components can reference other components. This is called nesting, and it's incredibly useful.
+
+**Component: "Login as Test User"**:
+```
+1. Navigate to {{variable:APP_URL}}/login
+2. Type {{variable:TEST_EMAIL}}
+3. Type {{variable:TEST_PASSWORD}}
+4. Click "Sign In"
+5. Wait until: Dashboard loads
+```
+
+**Component: "Add Product to Cart"**:
+```
+1. Run component: "Login as Test User" ← References another component
+2. Navigate to {{variable:APP_URL}}/products
+3. Add prompt: "Click the first product"
+4. Click "Add to Cart"
+5. Wait until: Cart badge updates
+```
+
+**Test: "Complete checkout"**:
+```
+1. Run component: "Add Product to Cart" ← References component that references component
+2. Navigate to cart
+3. Click "Checkout"
+4. Complete checkout form
+5. Click "Complete Purchase"
+```
+
+When this test runs, Autonoma "flattens" everything:
+1. Executes all steps from "Login as Test User"
+2. Then executes remaining steps from "Add Product to Cart"
+3. Then executes the unique checkout steps
+
+**You wrote 6 steps. The test executes 15+.** That's the power of nested components.
+
+## Real-World Example: E-Commerce Test Suite
+
+Let's build a realistic test suite using components.
+
+**Component: "Login"**:
+```
+1. Navigate to {{variable:APP_URL}}/login
+2. Type {{variable:TEST_EMAIL}} in email field
+3. Type {{variable:TEST_PASSWORD}} in password field
+4. Click "Sign In"
+5. Wait until: Dashboard loads
+```
+
+**Component: "Add First Product to Cart"**:
+```
+1. Navigate to {{variable:APP_URL}}/products
+2. Wait until: Products load
+3. Add prompt: "Click the first product"
+4. Wait until: Product page loads
+5. Click "Add to Cart"
+6. Wait until: Cart icon updates
+```
+
+**Component: "Go to Checkout"**:
+```
+1. Click cart icon
+2. Wait until: Cart page loads
+3. Click "Proceed to Checkout"
+4. Wait until: Checkout form loads
+```
+
+**Test: "Guest checkout"**:
+```
+1. Run component: "Add First Product to Cart"
+2. Run component: "Go to Checkout"
+3. Type {{random:email}} in email field
+4. Complete checkout form
+5. Click "Complete Purchase"
+6. Wait until: Confirmation appears
+```
+
+**Test: "Logged-in user checkout"**:
+```
+1. Run component: "Login"
+2. Run component: "Add First Product to Cart"
+3. Run component: "Go to Checkout"
+4. Click "Complete Purchase" ← Pre-filled info
+5. Wait until: Confirmation appears
+```
+
+**Test: "Add multiple products and checkout"**:
+```
+1. Run component: "Login"
+2. Run component: "Add First Product to Cart"
+3. Navigate back to products
+4. Run component: "Add First Product to Cart" ← Reuse!
+5. Run component: "Go to Checkout"
+6. Click "Complete Purchase"
+7. Wait until: Confirmation appears
+```
+
+**See the pattern?** Three components. Multiple tests. Minimal repetition. Easy maintenance.
+
+## When to Create Components
+
+Create a component when:
+
+**Logic repeats across multiple tests**:
+If you've written the same 5 steps in 3+ tests, make it a component.
+
+**A workflow is complex but reusable**:
+Login flows, checkout processes, data setup—anything that's multi-step and repeatable.
+
+**You anticipate changes**:
+If a feature might change (new auth flow, updated checkout), componentize it now. Future updates will be easier.
+
+**You want to test variations**:
+Create a component with variables, then test different scenarios by passing different values.
+
+## Components vs Copy-Paste
+
+Let's see the difference:
+
+**Without components (copy-paste)**:
+- 20 tests with identical login logic
+- Login flow changes
+- Update 20 tests individually
+- Risk missing some tests
+- Hours of tedious work
+
+**With components**:
+- 20 tests reference "Login" component
+- Login flow changes
+- Update 1 component
+- All 20 tests automatically updated
+- Minutes of work
+
+**Maintenance time**: 2 hours → 2 minutes.
+
+## Tips for Effective Components
+
+**Keep components focused**:
+```
+Good: "Login as User" does just login
+Bad: "Login and Navigate to Dashboard and Check Notifications"
+```
+
+**Use descriptive names**:
+```
+Good: "Add Product to Cart", "Complete Checkout"
+Bad: "Helper 1", "Test Setup"
+```
+
+**Document what variables components expect**:
+If a component uses `{{variable:EMAIL}}`, note that in the component description.
+
+**Test components independently**:
+Run components as standalone tests to verify they work before referencing them.
+
+## What's Next
+
+You now know how to eliminate repetitive test logic using components. Write once, use everywhere. Update once, fix everywhere.
+
+Next, let's tackle the #1 reason tests fail—and it's not what you think.
+
+---
+
+*Ready to learn about test failures? Continue to [Why Tests Fail: The #1 Cause →](/why-tests-fail)*

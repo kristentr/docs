@@ -1,0 +1,316 @@
+---
+title: "The Brittle Test Problem"
+description: "Learn how to build tests that survive cosmetic changes and focus on actual functionality rather than breaking every week."
+---
+
+# The Brittle Test Problem
+
+## The Test That Breaks Tomorrow
+
+You build a test for your product listing page:
+
+```
+Test: "View product details"
+
+1. Navigate to {{variable:APP_URL}}/products
+2. Wait until: Products load
+3. Click on product titled "Blue Cotton T-Shirt - Size M - $24.99"
+4. Wait until: Product page loads
+5. Verify details are correct
+```
+
+The test passes. You ship it.
+
+Next week, your team:
+- Changes the price to $22.99
+- Updates the title to "Premium Blue Cotton T-Shirt"
+- Adds size variants as a dropdown instead of in the title
+
+**Your test breaks.** It's looking for "Blue Cotton T-Shirt - Size M - $24.99", which no longer exists.
+
+**But the product page feature works perfectly.** The test failed because of cosmetic changes, not actual bugs.
+
+This is a **brittle test**—one that breaks when unrelated things change. And it's one of the most frustrating problems in test automation.
+
+## What Makes Tests Brittle?
+
+Brittle tests depend on specific details that are likely to change:
+
+**Exact product names**:
+```
+Click on "iPhone 15 Pro Max 256GB Blue Titanium"
+```
+Product names change frequently (promotions, rebranding, specs).
+
+**Specific prices**:
+```
+Wait until: Price shows "$24.99"
+```
+Prices change constantly (sales, currency adjustments, A/B tests).
+
+**Precise text wording**:
+```
+Click on "Add to Shopping Basket"
+```
+Button text changes (internationalization, A/B testing, UX improvements).
+
+**Exact positions**:
+```
+Click the third product in the list
+```
+Product order changes (sorting, inventory, promotions).
+
+**Specific data values**:
+```
+Find order #12345
+```
+Order numbers are dynamic.
+
+**The pattern**: Brittle tests rely on specifics. Robust tests rely on concepts.
+
+## The Robust Alternative
+
+Instead of depending on exact details, describe what you want conceptually.
+
+**Brittle**:
+```
+Click on "Blue Cotton T-Shirt - Size M - $24.99"
+```
+
+**Robust**:
+```
+Add prompt: "Click on the first product in the list"
+```
+
+Now your test works regardless of:
+- What the product is named
+- How much it costs
+- What details are shown
+
+**The product could change to "Red Wool Sweater - $45" and your test still works.**
+
+## Position-Based Selection
+
+One robust pattern is position-based selection:
+
+```
+"Click the first product"
+"Click the last item in the cart"
+"Click the third result"
+"Click the product in the top-right corner"
+```
+
+These work because they don't depend on content—only position.
+
+**Example**:
+```
+Test: "Add any product to cart"
+
+1. Navigate to products
+2. Wait until: Products load
+3. Add prompt: "Click the first product" ← Position-based
+4. Wait until: Product page loads
+5. Click "Add to Cart"
+6. Wait until: Cart updates
+```
+
+This test works for any product in your catalog. Content changes don't matter.
+
+## Content-Based Selection (When Done Right)
+
+Sometimes you need to select based on content, but do it robustly:
+
+**Brittle content selection**:
+```
+"Click on 'Premium Blue Cotton T-Shirt - Size M - Now Only $22.99!'"
+```
+Too specific. Breaks with any wording change.
+
+**Robust content selection**:
+```
+"Click on the product with 'Blue' in the title"
+"Click on the product with 'T-Shirt' in the name"
+"Click on any product priced under $50"
+```
+Flexible enough to handle variations.
+
+**Example**:
+```
+Test: "Add blue product to cart"
+
+1. Navigate to products
+2. Wait until: Products load
+3. Add prompt: "Click on a product with 'Blue' in the title" ← Flexible
+4. Wait until: Product page loads
+5. Click "Add to Cart"
+```
+
+The exact title can change, but as long as "Blue" is somewhere in it, the test works.
+
+## Category and Type Selection
+
+Another robust approach is selecting by category or type:
+
+```
+"Click on any t-shirt product"
+"Click on a product in the 'Electronics' category"
+"Click on the highest-rated product"
+"Click on any product marked 'On Sale'"
+```
+
+These are conceptual selections—they work across data changes.
+
+**Example**:
+```
+Test: "Add electronics product to cart"
+
+1. Navigate to products
+2. Click on "Electronics" filter
+3. Wait until: Electronics load
+4. Add prompt: "Click on any electronics product" ← Category-based
+5. Wait until: Product page loads
+6. Click "Add to Cart"
+```
+
+It doesn't matter which specific product gets clicked—the test verifies the flow works for electronics.
+
+## Relative Selection
+
+Sometimes you can select elements relative to other elements:
+
+```
+"Click the 'Delete' button next to the first item"
+"Click the 'Edit' icon to the right of the username"
+"Click the price below the product image"
+```
+
+This works when layout is stable but content varies.
+
+**Example**:
+```
+Test: "Delete first item from cart"
+
+1. Navigate to cart
+2. Wait until: Cart loads
+3. Add prompt: "Click the delete button next to the first item" ← Relative
+4. Wait until: Item removed confirmation
+```
+
+The item name can change, but the "delete button next to first item" relationship remains.
+
+## Static Elements: When to Use Canvas
+
+Remember from the earlier guide on canvas vs prompts: **Static elements** should be clicked directly on the canvas, not via prompts.
+
+**Static (use canvas)**:
+- Navigation buttons ("Home", "Products", "Cart")
+- Form field labels ("Email", "Password")
+- Standard action buttons ("Submit", "Cancel", "Save")
+- Fixed UI elements
+
+**Dynamic (use prompts)**:
+- Product listings (content changes)
+- Search results (results vary)
+- User-generated content (posts, comments)
+- Filtered lists
+
+**Example combining both**:
+```
+Test: "Filter and purchase product"
+
+1. Click "Products" in navigation ← Canvas: Static nav
+2. Wait until: Products load
+3. Click "Electronics" filter ← Canvas: Static filter
+4. Wait until: Filtered products load
+5. Add prompt: "Click the first product" ← Prompt: Dynamic product
+6. Wait until: Product page loads
+7. Click "Add to Cart" ← Canvas: Static button
+```
+
+## Real-World Comparison
+
+Let's see brittle vs robust tests side by side:
+
+**Brittle test**:
+```
+Test: "Purchase specific product"
+
+1. Navigate to products
+2. Click on "iPhone 15 Pro Max 256GB Blue Titanium - $1199"
+3. Select "AppleCare+" warranty option
+4. Select "Express Shipping - Delivers by Dec 25"
+5. Wait until: Total shows "$1299.99"
+6. Click "Complete Purchase for $1299.99"
+```
+
+**What breaks this test**:
+- Product name changes (happens frequently)
+- Price changes (happens very frequently)
+- Shipping option changes (seasonal)
+- Warranty option changes (policy updates)
+
+**Robust alternative**:
+```
+Test: "Purchase any product with warranty and shipping"
+
+1. Navigate to products
+2. Wait until: Products load
+3. Add prompt: "Click on the first product" ← Robust
+4. Wait until: Product page loads
+5. Add prompt: "Select any warranty option" ← Robust
+6. Wait until: Warranty selected
+7. Add prompt: "Select any shipping option" ← Robust
+8. Wait until: Shipping selected
+9. Click "Complete Purchase" ← Robust (button text might vary but concept is stable)
+10. Wait until: Confirmation appears
+```
+
+**What breaks this test**:
+- Only if the actual purchase flow is broken (which is what you want to detect!)
+
+## The Extraction + Verification Pattern
+
+Want to test with dynamic data but still verify correctness? Use extraction:
+
+```
+Test: "Verify cart reflects selected product"
+
+1. Navigate to products
+2. Wait until: Products load
+3. Add prompt: "Extract information about the first product's name with key PRODUCT_NAME"
+4. Add prompt: "Extract information about the first product's price with key PRODUCT_PRICE"
+5. Add prompt: "Click the first product"
+6. Click "Add to Cart"
+7. Navigate to cart
+8. Wait until: Cart shows product {{key:PRODUCT_NAME}} ← Verify the extracted name
+9. Wait until: Cart shows price {{key:PRODUCT_PRICE}} ← Verify the extracted price
+```
+
+This works with any product because you extract first, then verify that extraction matches later.
+
+## The Maintenance Difference
+
+Let's calculate test maintenance over time:
+
+**10 brittle tests**:
+- Break every time product names change (weekly)
+- Break when prices change (daily in sales season)
+- Break when UI text changes (monthly)
+- **Maintenance: Hours per week**
+
+**10 robust tests**:
+- Keep working through content changes
+- Only break when actual functionality breaks
+- **Maintenance: Hours per month (or less)**
+
+**The time savings compound over months.**
+
+## What's Next
+
+You now understand how to write tests that survive cosmetic changes and focus on actual functionality. Position-based selection, flexible content matching, and extraction let you test real scenarios without brittleness.
+
+Next, let's explore strategic testing—how to decide what to test in common scenarios like forms, checkout flows, and user journeys.
+
+---
+
+*Ready to learn testing strategy? Continue to [Testing Forms: The Complete Strategy →](/testing-forms)*

@@ -1,0 +1,319 @@
+---
+title: "Using Variables for Test Parametrization"
+description: "Learn how variables let you change values once and instantly update all your tests, saving hours of maintenance time."
+---
+
+# Using Variables for Test Parametrization
+
+## The Nightmare Scenario
+
+Your company just changed the staging environment URL. It went from `https://staging.yourapp.com` to `https://staging-v2.yourapp.com`.
+
+You have 50 tests. Every single one starts with:
+```
+1. Navigate to https://staging.yourapp.com/...
+```
+
+Now you need to update all 50 tests. One by one. Open each test. Find the URL. Change it. Save. Repeat 49 more times.
+
+**This takes hours.** And it's not the last time this will happen. URLs change. Test credentials rotate. API endpoints update. Every change means touching dozens of tests.
+
+There's a better way. One that lets you change a value once and instantly update all 50 tests. It's called **variables**, and once you understand them, you'll never go back.
+
+## What Are Variables?
+
+Variables are values you define once and reuse across all your tests.
+
+Instead of hardcoding `https://staging.yourapp.com` in 50 tests, you create a variable called `APP_URL` and set it to `https://staging.yourapp.com`. Then every test references `{{variable:APP_URL}}`.
+
+When you need to change the URL, you update the variable once. All 50 tests automatically use the new value.
+
+**Think of variables like a company-wide contact list.** Instead of everyone memorizing phone numbers, you maintain one list. When a number changes, you update the list once, and everyone gets the new number.
+
+## Your First Variable
+
+Let's create and use a variable in a test.
+
+**Step 1: Define the variable**
+
+In Autonoma, go to your project settings and create a new variable:
+- Name: `TEST_EMAIL`
+- Value: `test.user@example.com`
+
+This creates a variable you can use in any test.
+
+**Step 2: Use it in a test**
+
+Build a login test using the variable:
+
+```
+Test: "Login with test account"
+
+1. Navigate to {{variable:APP_URL}}/login
+2. Wait until: Login form loads
+3. Type {{variable:TEST_EMAIL}} in email field
+4. Type {{variable:TEST_PASSWORD}} in password field
+5. Click "Sign In"
+6. Wait until: Dashboard loads
+```
+
+Notice `{{variable:TEST_EMAIL}}` and `{{variable:TEST_PASSWORD}}`—these reference your variables. When the test runs, Autonoma replaces them with the actual values.
+
+**Step 3: The magic happens**
+
+Now imagine your test email needs to change. Maybe the old one is blocked, or you need a different domain.
+
+**Without variables**: Open all 50 tests that use this email. Change it in each one. Save each one.
+
+**With variables**: Change `TEST_EMAIL` once in project settings. Done. All 50 tests instantly use the new email.
+
+## Common Variables to Create
+
+Here are the variables most teams set up first:
+
+**Environment URLs**:
+```
+{{variable:APP_URL}} = https://staging.yourapp.com
+{{variable:API_URL}} = https://api.staging.yourapp.com
+{{variable:ADMIN_URL}} = https://admin.staging.yourapp.com
+```
+
+Use these in every navigation step. When you switch environments (staging → production), change the variables once.
+
+**Test credentials**:
+```
+{{variable:TEST_EMAIL}} = test.user@example.com
+{{variable:TEST_PASSWORD}} = SecurePass123!
+{{variable:ADMIN_EMAIL}} = admin@example.com
+{{variable:ADMIN_PASSWORD}} = AdminPass456!
+```
+
+Use these for all login tests. When credentials rotate, update once.
+
+**API keys and tokens**:
+```
+{{variable:API_KEY}} = sk_test_abc123xyz789
+{{variable:STRIPE_KEY}} = pk_test_def456
+```
+
+Use these for API integrations. When keys change, update once.
+
+**Test data**:
+```
+{{variable:VALID_ZIP_CODE}} = 94105
+{{variable:TEST_PHONE}} = +1-555-0123
+{{variable:PROMO_CODE}} = TESTCODE2024
+```
+
+Use these for form testing. When test data needs updating, change once.
+
+## Real-World Example: Multi-Environment Testing
+
+Let's see how variables make multi-environment testing manageable.
+
+**Your test**:
+```
+Test: "Complete checkout flow"
+
+1. Navigate to {{variable:APP_URL}}/products
+2. Wait until: Products load
+3. Add prompt: "Click the first product"
+4. Click "Add to Cart"
+5. Navigate to {{variable:APP_URL}}/cart
+6. Click "Checkout"
+7. Type {{variable:TEST_EMAIL}} in email field
+8. Type {{variable:TEST_ADDRESS}} in address field
+9. Type {{variable:TEST_ZIP}} in zip code field
+10. Click "Complete Purchase"
+11. Wait until: Confirmation page appears
+```
+
+**Staging environment variables**:
+```
+APP_URL = https://staging.yourapp.com
+TEST_EMAIL = staging.test@example.com
+TEST_ADDRESS = 123 Test St
+TEST_ZIP = 94105
+```
+
+**Production environment variables**:
+```
+APP_URL = https://yourapp.com
+TEST_EMAIL = prod.test@example.com
+TEST_ADDRESS = 456 Prod Ave
+TEST_ZIP = 10001
+```
+
+Same test. Different variables. Runs perfectly in both environments. **No test changes needed.**
+
+## Variables vs Hardcoding
+
+Let's see the difference side by side.
+
+**Hardcoded test (bad)**:
+```
+Test: "User registration"
+
+1. Navigate to https://staging.yourapp.com/signup
+2. Type john.smith.test@gmail.com in email field
+3. Type Password123! in password field
+4. Type Password123! in confirm password field
+5. Click "Sign Up"
+```
+
+**Problems**:
+- URL is hardcoded (breaks when URL changes)
+- Email is hardcoded (might get reused, causing conflicts)
+- Password is visible (security issue)
+- Every test like this needs individual updates
+
+**Variable-based test (good)**:
+```
+Test: "User registration"
+
+1. Navigate to {{variable:APP_URL}}/signup
+2. Type {{variable:TEST_EMAIL}} in email field
+3. Type {{variable:TEST_PASSWORD}} in password field
+4. Type {{variable:TEST_PASSWORD}} in confirm password field
+5. Click "Sign Up"
+```
+
+**Benefits**:
+- URL is centrally managed
+- Email can be changed once for all tests
+- Password is stored securely in project settings
+- One change updates all tests
+
+## When to Use Variables
+
+Use variables for any value that:
+
+**Changes occasionally**:
+- URLs (environments change)
+- Credentials (passwords rotate)
+- API keys (keys expire)
+
+**Appears in multiple tests**:
+- Common email addresses
+- Shared phone numbers
+- Standard test data
+
+**Should be configurable**:
+- Environment-specific settings
+- Feature flags
+- Regional data (zip codes, phone formats)
+
+**Needs security**:
+- Passwords
+- API tokens
+- Private keys
+
+## Variables for Different User Roles
+
+Many apps have different user types. Use variables to test each role:
+
+**Customer role**:
+```
+{{variable:CUSTOMER_EMAIL}} = customer@example.com
+{{variable:CUSTOMER_PASSWORD}} = CustomerPass123!
+```
+
+**Admin role**:
+```
+{{variable:ADMIN_EMAIL}} = admin@example.com
+{{variable:ADMIN_PASSWORD}} = AdminPass123!
+```
+
+**Merchant role**:
+```
+{{variable:MERCHANT_EMAIL}} = merchant@example.com
+{{variable:MERCHANT_PASSWORD}} = MerchantPass123!
+```
+
+Then create tests for each role:
+
+```
+Test: "Customer can view orders"
+
+1. Navigate to {{variable:APP_URL}}/login
+2. Type {{variable:CUSTOMER_EMAIL}} in email field
+3. Type {{variable:CUSTOMER_PASSWORD}} in password field
+4. Click "Sign In"
+5. Navigate to {{variable:APP_URL}}/orders
+6. Wait until: Order history loads
+```
+
+```
+Test: "Admin can manage users"
+
+1. Navigate to {{variable:APP_URL}}/admin
+2. Type {{variable:ADMIN_EMAIL}} in email field
+3. Type {{variable:ADMIN_PASSWORD}} in password field
+4. Click "Sign In"
+5. Navigate to {{variable:APP_URL}}/admin/users
+6. Wait until: User management panel loads
+```
+
+## Tips for Organizing Variables
+
+**Use clear naming conventions**:
+```
+Good: TEST_EMAIL, APP_URL, STAGING_URL
+Bad: EMAIL1, URL, THEURL
+```
+
+**Group related variables**:
+```
+# Environment
+APP_URL
+API_URL
+ADMIN_URL
+
+# Customer credentials
+CUSTOMER_EMAIL
+CUSTOMER_PASSWORD
+
+# Admin credentials
+ADMIN_EMAIL
+ADMIN_PASSWORD
+```
+
+**Document what each variable is for**:
+Add descriptions in your project settings so team members understand each variable's purpose.
+
+## Variables vs Keys vs Random Data
+
+By now you've learned about three types of dynamic values in Autonoma. Here's how they differ:
+
+**Variables** (`{{variable:NAME}}`):
+- **You set the value** before tests run
+- **Changes manually** when you update project settings
+- **Use for**: Credentials, URLs, configuration
+- **Example**: `{{variable:TEST_EMAIL}}` = "test@example.com"
+
+**Keys** (`{{key:NAME}}`):
+- **Your app generates the value** during the test
+- **Extracted during test execution** via extraction steps
+- **Use for**: Order numbers, confirmation codes, IDs
+- **Example**: `{{key:ORDER_ID}}` = "#A7B3X9" (extracted from app)
+
+**Random data** (`{{random:type}}`):
+- **Autonoma generates the value** each test run
+- **Changes automatically** every time
+- **Use for**: Unique emails, names, data that can't repeat
+- **Example**: `{{random:email}}` = "alice.jones.x7k9@example.com"
+
+**When to use which**:
+- Need same value in all tests? → Variable
+- Need value your app creates? → Key (extraction)
+- Need unique value each run? → Random data
+
+## What's Next
+
+You now understand how variables save you hours of test maintenance. Instead of updating values in dozens of tests, you update once and all tests benefit.
+
+But what about when you need *different* values every time? That's where random data comes in—and it solves a problem you might not even know you have.
+
+---
+
+*Ready to learn about random data? Continue to [Random Data: Why Your Registration Test Breaks →](/random-data)*

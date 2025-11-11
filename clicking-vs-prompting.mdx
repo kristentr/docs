@@ -1,0 +1,216 @@
+---
+title: "Canvas vs Prompts: Choosing the Right Tool"
+description: "Learn when to use direct canvas clicks versus natural language prompts for building robust tests in Autonoma."
+---
+
+# Canvas vs Prompts: Choosing the Right Tool
+
+## The Moment of Confusion
+
+You're building your third test in Autonoma. You've clicked buttons directly on the canvas, typed prompts, and everything worked. Then you wonder: **"Wait, why are there two ways to do the same thing?"**
+
+It's a fair question. Most tools give you one way to interact. Autonoma gives you two:
+
+1. **Direct canvas clicks** - Point and click on elements
+2. **Natural language prompts** - Describe what you want to do
+
+At first, this feels redundant. Why not just pick one? But here's the thing: they're not the same. They solve different problems. And once you understand when to use each, your tests become dramatically more robust.
+
+This guide explains the difference and shows you exactly when to use which approach.
+
+## The Canvas: Your Precision Tool
+
+When you click directly on the canvas, you're being specific. You're saying "click THIS button, the one I'm pointing at right now."
+
+Think of it like pointing at a specific item in a store: "I want THAT one, right there on the shelf."
+
+**The canvas is perfect for static elements:**
+
+- Navigation menus that never change ("Home", "About", "Contact")
+- Form labels and field names
+- Standard buttons with fixed text ("Submit", "Cancel", "Save")
+- Static UI elements that always exist in the same place
+
+**Example scenario:**
+
+You're testing a login page. The "Email" field is always there, always labeled "Email", never moves. You click it directly on the canvas. Fast. Precise. Perfect.
+
+```
+Test: "Login to application"
+
+1. Click email field ← Canvas click, element never changes
+2. Type {{variable:TEST_EMAIL}}
+3. Click password field ← Canvas click, static element
+4. Type {{variable:TEST_PASSWORD}}
+5. Click "Sign In" button ← Canvas click, button always says "Sign In"
+6. Wait until: Dashboard loads
+```
+
+This test works reliably because everything you clicked is static. The login page looks the same every time.
+
+## The Prompt: Your Flexible Tool
+
+Now imagine you're testing search results. You search for "shoes" and get 50 products. Tomorrow, different shoes appear. Next week, some are out of stock. The specific products constantly change.
+
+**You can't click a specific product on the canvas—it might not exist tomorrow.**
+
+This is where prompts shine. Instead of clicking a specific product, you describe what you want:
+
+```
+"Click on the first product in the search results"
+```
+
+Autonoma's AI interprets this flexibly. It doesn't matter which product is first—it finds whatever is in that position and clicks it.
+
+**The prompt is perfect for dynamic elements:**
+
+- Search results (content varies)
+- Product listings (inventory changes)
+- User-generated content (posts, comments)
+- Dynamic feeds (news, social media)
+- Lists where order or content changes
+
+**Example scenario:**
+
+You're testing an e-commerce search. Products change daily based on inventory.
+
+```
+Test: "Search and add product to cart"
+
+1. Type "laptop" in search ← Canvas click on search field (always there)
+2. Press Enter
+3. Wait until: Search results load
+4. Add prompt: "Click on the first product listing" ← Prompt! Product name varies
+5. Wait until: Product page loads
+6. Click "Add to Cart" ← Canvas click (button text is always "Add to Cart")
+```
+
+Notice the mix? Search field = canvas (static). First product = prompt (dynamic). Add to Cart = canvas (static).
+
+## The Rule That Changes Everything
+
+Here's the decision framework:
+
+**"Will this element be exactly the same next time I run the test?"**
+
+- **Yes** → Use canvas
+- **No** → Use prompt
+
+Let's practice:
+
+| Element | Static or Dynamic? | Use |
+|---------|-------------------|-----|
+| "Home" link in navigation | Static (never changes) | Canvas |
+| First item in shopping cart | Dynamic (varies per user) | Prompt |
+| "Submit" button on form | Static (always says "Submit") | Canvas |
+| Product named "Blue Shirt" | Dynamic (might be removed) | Prompt |
+| "Email" field label | Static (always labeled "Email") | Canvas |
+| Top search result | Dynamic (results vary) | Prompt |
+
+## Real-World Example: The Checkout Flow
+
+Let's build a complete test that uses both approaches strategically:
+
+```
+Test: "Complete purchase from search"
+
+Browse Products (Dynamic):
+1. Type "headphones" in search ← Canvas (search box is static)
+2. Press Enter
+3. Wait until: Results load
+4. Add prompt: "Click the first product with 'In Stock' status" ← Prompt! Dynamic
+5. Wait until: Product page loads
+
+Product Page (Static):
+6. Click "Add to Cart" button ← Canvas (button is always there)
+7. Wait until: Cart badge updates
+8. Click cart icon ← Canvas (icon is static)
+9. Wait until: Cart page loads
+
+Checkout (Static):
+10. Click "Proceed to Checkout" ← Canvas (static button)
+11. Wait until: Checkout form loads
+12. Type shipping information ← Canvas (form fields are static)
+13. Click "Complete Purchase" ← Canvas (static button)
+14. Wait until: Confirmation appears
+```
+
+**Why this works:**
+
+- Used **prompts** for the unpredictable part (which product appears first)
+- Used **canvas** for all the reliable UI (buttons, forms, navigation)
+- Result: Test works regardless of which products are in stock
+
+## When Canvas Clicks Break
+
+Here's what happens when you use canvas for dynamic content:
+
+**Scenario**: You click a specific product on the canvas during test creation.
+
+```
+Test: "Add product to cart"
+
+1. Navigate to products
+2. Click "Nike Air Max 2024" ← Direct canvas click
+3. Click "Add to Cart"
+```
+
+**What goes wrong:**
+
+- Product gets renamed → Test fails ("Nike Air Max 2024" not found)
+- Product goes out of stock → Test fails (product not visible)
+- Product moves to page 2 → Test fails (not on first page)
+
+**The fix:**
+
+```
+Test: "Add product to cart"
+
+1. Navigate to products
+2. Wait until: Products load
+3. Add prompt: "Click the first product" ← Flexible!
+4. Wait until: Product page loads
+5. Click "Add to Cart"
+```
+
+Now it works forever, regardless of which products exist.
+
+## The Hybrid Approach
+
+The most robust tests use both methods strategically. Here's a real example:
+
+```
+Test: "Filter products and purchase"
+
+Navigation (Canvas):
+1. Click "Products" in menu ← Static
+
+Filtering (Canvas):
+2. Click "Category: Electronics" filter ← Static filter name
+3. Wait until: Products update
+
+Selection (Prompt):
+4. Add prompt: "Click the highest rated product" ← Dynamic results
+
+Purchase (Canvas):
+5. Click "Add to Cart" ← Static button
+6. Click cart icon ← Static icon
+7. Click "Checkout" ← Static button
+```
+
+## Key Takeaways
+
+1. **Two tools, different purposes** - Canvas for static, prompts for dynamic
+2. **The question to ask**: "Will this be the same next time?"
+3. **Canvas strengths**: Fast, precise, predictable for static elements
+4. **Prompt strengths**: Flexible, adaptive, perfect for changing content
+5. **Most tests use both** - Apply each where it fits best
+6. **When in doubt**: Prompts are safer for unknown situations
+
+## What's Next
+
+Now that you understand how to interact with your application, the next guide shows you how to handle one of the most challenging test scenarios: uploading files.
+
+---
+
+*Ready to test file uploads? Continue to [Testing File Uploads →](/testing-file-uploads)*

@@ -1,0 +1,357 @@
+---
+title: "Your First Test"
+description: "Create your first end-to-end test with Autonoma by following a step-by-step guide through the fundamental workflow you'll use for all your tests."
+---
+
+# Your First Test
+
+## What You'll Learn
+
+By the end of this guide, you'll have created a real, working e2e test. We'll test a sign-up flow on a public website, and you'll learn the fundamental workflow that you'll use for all your tests.
+
+**Time to complete**: 10-15 minutes
+
+## Before You Start
+
+Make sure you have:
+- Access to Autonoma (if you don't, sign up at [autonoma.app](https://autonoma.app))
+- Your application configured in Autonoma (see Configure Your Application if you haven't done this yet)
+
+For this tutorial, we'll use **vercel.com** as our test application since it's publicly accessible and stable. Once you understand the process, you can apply it to your own application.
+
+## The Autonoma Workflow
+
+Every test in Autonoma follows the same simple pattern:
+
+1. **Navigate** to your application
+2. **Interact** with it (clicks, typing, scrolling)
+3. **Verify** that things work as expected
+4. **Run** the test to confirm it works
+5. **Save** and schedule it to run automatically
+
+Let's walk through each step.
+
+## Step 1: Create a New Test
+
+1. Log into Autonoma at [autonoma.app](https://autonoma.app)
+2. Click **Create Test** (usually a prominent button on your dashboard)
+3. Select your application (or choose "vercel.com" if you want to follow along with this tutorial)
+4. Give your test a name: "Sign up flow - Verify form validation"
+
+**Naming tip**: Use descriptive names that explain what the test does. "Test 1" won't help you six months from now, but "Sign up flow - Verify form validation" tells you exactly what breaks if the test fails.
+
+## Step 2: Navigate to Your Starting Point
+
+You'll see a canvas showing your application. This is where the magic happens—you're looking at a real, live version of your app that Autonoma can interact with.
+
+**For this tutorial**: The canvas should already be showing vercel.com.
+
+If you need to navigate to a specific page:
+- You can click around naturally to get there, OR
+- Use the URL bar to jump directly to a page
+
+**Let's navigate to the sign-up page**:
+1. Look for the "Sign Up" button on vercel.com
+2. Simply click it on the canvas
+
+See how easy that was? You just navigated like a normal user, and Autonoma recorded that action.
+
+## Step 3: Interact With Your Application
+
+Now we're going to fill out the sign-up form. In Autonoma, you have two ways to interact:
+
+### Method 1: Direct Interaction (Recommended for Simple Actions)
+Just click on things and type into fields directly on the canvas. Autonoma will record what you do.
+
+### Method 2: Natural Language Prompts (Recommended for Complex Actions)
+Describe what you want to do in plain language.
+
+**For this tutorial, let's use direct interaction:**
+
+1. **Click on the email field** in the sign-up form
+2. **Type a test email**: `test-user@example.com`
+3. **Click on the password field**
+4. **Type a test password**: `SecurePassword123!`
+5. **Click on the name field** (if there is one)
+6. **Type a name**: `Test User`
+
+As you do this, notice that Autonoma is building your test in real-time. You'll see each action appear as a step in your test.
+
+### Understanding Atomic Prompts (Important!)
+
+Here's a key concept in Autonoma: **prompts are atomic**, meaning each prompt should do one thing.
+
+**Good examples** (atomic):
+- "Click on the submit button"
+- "Type 'test@example.com' in the email field"
+- "Verify I see the success message"
+
+**Bad examples** (not atomic):
+- "Click submit and verify the success message appears" ❌
+- "Type the email and then click submit" ❌
+
+**Why atomic?** It gives you better control and makes tests more reliable. If something fails, you know exactly what step failed. If you need to modify the test later, you can edit individual steps.
+
+**The correct way**:
+1. Step 1: "Type 'test@example.com' in email field"
+2. Step 2: "Click the submit button"
+3. Step 3: "Verify I see the success message"
+
+This might feel verbose at first, but it makes your tests much more maintainable and easier to debug.
+
+## Step 4: Add Verifications (Assertions)
+
+Here's the critical part: **verifying that your application behaves correctly**. Without verifications (also called "assertions"), your test would just click around without checking if anything actually works.
+
+Think of verifications as checkpoints: "At this point in the journey, I should see X."
+
+**For our sign-up test, let's add a verification:**
+
+After clicking submit, we want to verify that we actually see the sign-up page or a form validation message.
+
+1. After you've filled out the form, add a new prompt
+2. Type: "Verify I see the sign-up form"
+
+This tells Autonoma: "Check that the sign-up form is visible on the page. If it's not there, the test should fail."
+
+### When to Add Verifications
+
+**Rule of thumb**: Add verifications frequently, especially:
+- After navigation (verify you got to the right page)
+- After clicking buttons (verify the expected result happened)
+- After form submissions (verify success message or new page)
+- At the end of a workflow (verify the final state)
+
+**Example**: For a complete sign-up flow:
+1. Click "Sign Up" button
+2. **Verify** I see the sign-up form ← Checkpoint
+3. Fill in email
+4. Fill in password
+5. Click "Submit"
+6. **Verify** I see "Welcome" message ← Checkpoint
+7. **Verify** I see the dashboard ← Final checkpoint
+
+More verifications = more confidence that your test is actually testing what you think it's testing.
+
+## Step 5: Run Your Test
+
+Now let's see your test in action!
+
+1. Click the **Run** button (usually in the top-right corner)
+2. Watch as Autonoma:
+   - Opens a fresh browser/device
+   - Performs each action you recorded
+   - Checks all your verifications
+   - Reports success or failure
+
+**What you'll see**:
+- Each step executing in sequence
+- Visual feedback showing what's being clicked
+- Verifications being checked
+- A final "Test Passed" or "Test Failed" result
+
+**If your test fails**, don't worry! This is normal. Common issues:
+- **Timing**: Maybe the page needs more time to load
+- **Missing verification**: The element you're looking for isn't visible
+- **Incorrect prompt**: The AI didn't interpret your instruction correctly
+
+We'll cover how to fix these in the next section.
+
+## Step 6: Refine Your Test (If Needed)
+
+Your test might not pass on the first try. That's completely normal and expected! Here's how to fix common issues:
+
+### Issue 1: Elements Not Found
+
+**Problem**: "Could not find the submit button"
+
+**Solution**: Make your prompts more specific:
+- Instead of "Click submit", try "Click the button that says 'Sign Up'"
+- Or use direct clicking instead of prompts
+
+### Issue 2: Timing Issues
+
+**Problem**: Test tries to click something before it's loaded
+
+**Solution**: Add a wait or scroll:
+- "Wait until the form appears"
+- "Scroll until I see the submit button"
+
+We'll cover `waitUntil` and `scrollUntil` in depth in the Core Concepts section, but for now, just know they exist to help with timing issues.
+
+### Issue 3: Verification Fails
+
+**Problem**: "Could not verify success message"
+
+**Solution**:
+- Check if you're looking for the right thing
+- Make sure the verification happens after the element should appear
+- Try making the verification more specific: "Verify I see text containing 'Welcome'"
+
+### How to Edit Steps
+
+To modify a step:
+1. Click on the step in your test
+2. Edit the prompt or action
+3. Re-run the test to verify your change works
+
+**Pro tip**: You can delete steps, reorder them, and add new steps anywhere in your test. Experiment until your test reliably passes.
+
+## Step 7: Save and Name Your Test
+
+Once your test passes consistently:
+
+1. Click **Save**
+2. Give it a descriptive name if you haven't already
+3. Add it to a folder (optional but recommended for organization)
+
+**Folder suggestion**: Create a folder called "Sign Up Flow" or "User Registration" to group related tests together.
+
+## What You Just Learned
+
+Congratulations! You've just created your first e2e test. Let's recap what you did:
+
+1. ✅ Created a new test in Autonoma
+2. ✅ Navigated to a page by clicking naturally
+3. ✅ Interacted with form fields
+4. ✅ Added verifications to check results
+5. ✅ Ran the test and saw it execute
+6. ✅ Debugged and refined (if needed)
+7. ✅ Saved your test
+
+**The workflow you just learned applies to every test you'll create in Autonoma**, whether you're testing:
+- E-commerce checkout
+- User login
+- Form submissions
+- Multi-step workflows
+- Mobile app interactions
+- Complex admin panels
+
+The core pattern is always: **Navigate → Interact → Verify → Run → Refine**
+
+## Real-World Example: Applying This to Your App
+
+Now that you've tested vercel.com, you can apply the same workflow to your own application:
+
+### Example: Testing Your E-commerce Checkout
+
+1. **Navigate**: Start on your homepage → Click into a product
+2. **Interact**:
+   - Click "Add to Cart"
+   - Verify cart badge shows "1"
+   - Click cart icon
+   - Verify product appears in cart
+   - Click "Checkout"
+3. **Verify**:
+   - Verify checkout page appears
+   - Verify cart total is correct
+   - Verify product name is displayed
+4. **Run**: Execute and refine until passing
+5. **Save**: Name it "Checkout - Add single item to cart"
+
+### Example: Testing Your Login Flow
+
+1. **Navigate**: Go to your login page
+2. **Interact**:
+   - Type email
+   - Type password
+   - Click "Sign In"
+3. **Verify**:
+   - Verify dashboard appears
+   - Verify user name is displayed
+   - Verify "Sign In" button is gone
+4. **Run**: Execute and refine
+5. **Save**: Name it "Authentication - Successful login"
+
+## Understanding Test Results
+
+When you run your test, you'll get one of these outcomes:
+
+### ✅ Passed
+All steps executed successfully, and all verifications passed. Your application is working as expected for this workflow!
+
+### ❌ Failed
+Something didn't work:
+- An interaction failed (couldn't click a button, couldn't find a field)
+- A verification failed (expected element wasn't present)
+- An error occurred (page crashed, timeout)
+
+**Check the failure details** to see exactly which step failed and why. This tells you either:
+- Your application has a bug (the test caught a real issue!)
+- Your test needs refinement (incorrect prompt or verification)
+
+### ⚠️ Flaky
+The test sometimes passes, sometimes fails, without any code changes. This usually means:
+- Timing issues (need to add waits)
+- Dynamic content that changes (need to adjust verifications)
+- External dependencies (API calls with variable response times)
+
+## Best Practices You've Just Learned
+
+As you created this first test, you followed several best practices:
+
+1. **Descriptive naming**: "Sign up flow - Verify form validation" tells you what it does
+2. **Atomic steps**: Each action is separate and clear
+3. **Frequent verifications**: Check things along the way, not just at the end
+4. **Real user simulation**: Clicked and typed just like a user would
+5. **Test refinement**: Ran multiple times to ensure reliability
+
+## Common Questions
+
+### "Should I test with real data or fake data?"
+
+For most tests, use fake data (like `test-user@example.com`). For testing critical flows in production-like environments, you might use real test accounts. We'll cover managing test data with Variables in the Core Concepts section.
+
+### "How long should my test be?"
+
+**Shorter is better**. Aim for tests that:
+- Take 1-3 minutes to run
+- Test one specific workflow or feature
+- Have clear success/failure criteria
+
+If your test takes 10+ minutes, consider breaking it into multiple smaller tests.
+
+### "What if my app requires login?"
+
+Most apps do! Check out Configure Your Application for detailed guidance on handling login, including:
+- Simple email/password login
+- Magic link login
+- SSO/OAuth
+- Skip-login approaches (headers/cookies)
+
+### "Can I edit a test after saving?"
+
+Absolutely! Tests aren't set in stone. As your application evolves, you'll update your tests. Click on any saved test to edit it.
+
+### "What if I make a mistake while recording?"
+
+No problem! You can:
+- Delete steps you don't want
+- Add steps you forgot
+- Reorder steps by dragging
+- Edit prompts to fix mistakes
+
+## Your Next Steps
+
+Now that you've created your first test, you're ready to:
+
+1. **Create tests for your own application** using the same workflow
+2. **Learn about test structure** to understand what makes tests robust ([Understanding Test Structure](/understanding-test-structure))
+3. **Explore organization strategies** to manage multiple tests ([Test Organization](/test-organization-and-naming-conventions))
+4. **Configure login** if you haven't already
+
+## Key Takeaways
+
+1. **The core workflow is simple**: Navigate → Interact → Verify → Run → Refine
+2. **Keep prompts atomic**: One action per step
+3. **Verify frequently**: Add checkpoints throughout your test
+4. **Tests will need refinement**: It's normal to run and adjust multiple times
+5. **The same pattern works everywhere**: What you learned applies to all your testing needs
+
+## Celebrate Your Progress
+
+You've crossed a major milestone—you've created a real, working e2e test without writing a single line of code. This is the foundation you'll build on to create comprehensive test coverage for your application.
+
+---
+
+*Ready to understand what makes tests reliable and maintainable? Continue to [Understanding Test Structure →](/understanding-test-structure)*

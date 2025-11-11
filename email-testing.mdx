@@ -1,0 +1,416 @@
+---
+title: "Email Testing: The Complete Flow"
+description: "Learn how to test email-dependent workflows end-to-end, from generation to verification, without manual email checking."
+---
+
+# Email Testing: The Complete Flow
+
+## The Email Problem
+
+Your app sends a password reset email. To test this flow, you need to:
+
+1. Request the password reset
+2. Receive the email
+3. Open the email
+4. Click the reset link
+5. Complete the password reset
+6. Verify it worked
+
+**But how do you "receive the email" in an automated test?**
+
+Traditional approaches:
+- **Use a real email account**: Slow, requires polling, clutters inbox
+- **Mock the email**: Doesn't test reality, misses real email issues
+- **Skip email testing**: Hope emails work (they often don't)
+
+None of these are good. Real email testing needs a better solution.
+
+**Autonoma provides two email actions** that make email workflows testable:
+1. **Generate an email address** for receiving test emails
+2. **Retrieve information from that email** (links, codes, text)
+
+Let's explore how to use them.
+
+## The Two Email Actions
+
+**Action 1: Generate an email address**
+```
+Add prompt: "Generate an email address for extracting information"
+```
+
+This creates a temporary email address that Autonoma can access. When your app sends email to this address, Autonoma can retrieve it.
+
+**Action 2: Retrieve email content**
+```
+Add prompt: "Retrieve the <what you need> from the email"
+```
+
+This fetches the email and extracts what you specified (link, code, text, etc.).
+
+**Together, these actions let you test complete email workflows.**
+
+## Your First Email Test: Password Reset
+
+Let's test the password reset flow.
+
+```
+Test: "Password reset via email"
+
+Request Reset:
+1. Navigate to {{variable:APP_URL}}/login
+2. Wait until: Login page loads
+3. Click "Forgot Password?"
+4. Wait until: Reset form appears
+
+Generate Email:
+5. Add prompt: "Generate an email address for extracting information"
+6. Add prompt: "Extract information about the email address with key RESET_EMAIL" ← Save it
+7. Type {{key:RESET_EMAIL}} in email field ← Use the generated email
+8. Click "Send Reset Link"
+9. Wait until: "Check your email" message appears
+
+Retrieve Email and Click Link:
+10. Add prompt: "Retrieve the password reset link from the email"
+11. Add prompt: "Extract information about the reset link with key RESET_LINK"
+12. Navigate to {{key:RESET_LINK}} ← Follow the link from email
+
+Complete Reset:
+13. Wait until: Password reset form loads
+14. Type {{random:password}} in new password field
+15. Type {{random:password}} in confirm password field
+16. Click "Reset Password"
+17. Wait until: "Password changed successfully" appears
+
+Verify:
+18. Navigate to {{variable:APP_URL}}/login
+19. Type {{key:RESET_EMAIL}} in email field
+20. Type {{random:password}} in password field ← Use new password
+21. Click "Sign In"
+22. Wait until: Dashboard loads ← Successfully logged in with new password
+```
+
+**This test proves**: The entire password reset flow works end-to-end, including email delivery and link functionality.
+
+## Magic Link Authentication
+
+Many modern apps use magic links instead of passwords. Here's how to test that:
+
+```
+Test: "Login with magic link"
+
+Request Magic Link:
+1. Navigate to {{variable:APP_URL}}/login
+2. Wait until: Login page loads
+3. Add prompt: "Generate an email address for extracting information"
+4. Add prompt: "Extract information about the email address with key LOGIN_EMAIL"
+5. Type {{key:LOGIN_EMAIL}} in email field
+6. Click "Send Magic Link"
+7. Wait until: "Check your email" message appears
+
+Retrieve and Use Link:
+8. Add prompt: "Retrieve the magic link from the email"
+9. Add prompt: "Extract information about the magic link with key MAGIC_LINK"
+10. Navigate to {{key:MAGIC_LINK}}
+11. Wait until: Dashboard loads ← Automatically logged in
+12. Verify user is logged in with {{key:LOGIN_EMAIL}}
+```
+
+**This test proves**: Magic link generation, delivery, and authentication work correctly.
+
+## Email Verification During Registration
+
+Testing new user registration with email verification:
+
+```
+Test: "Register account and verify email"
+
+Register:
+1. Navigate to {{variable:APP_URL}}/signup
+2. Wait until: Registration form loads
+3. Add prompt: "Generate an email address for extracting information"
+4. Add prompt: "Extract information about the email address with key USER_EMAIL"
+5. Type {{key:USER_EMAIL}} in email field
+6. Type {{random:first_name}} in first name field
+7. Type {{random:last_name}} in last name field
+8. Type {{random:password}} in password field
+9. Type {{random:password}} in confirm password field
+10. Click "Sign Up"
+11. Wait until: "Please verify your email" message appears
+
+Verify Email:
+12. Add prompt: "Retrieve the verification link from the email"
+13. Add prompt: "Extract information about the verification link with key VERIFY_LINK"
+14. Navigate to {{key:VERIFY_LINK}}
+15. Wait until: "Email verified successfully" message appears
+
+Login:
+16. Navigate to {{variable:APP_URL}}/login
+17. Type {{key:USER_EMAIL}} in email field
+18. Type {{random:password}} in password field
+19. Click "Sign In"
+20. Wait until: Dashboard loads
+21. Verify account shows as verified
+```
+
+**This test proves**: Registration, email verification, and post-verification login all work.
+
+## Extracting Verification Codes
+
+Some apps send verification codes instead of links:
+
+```
+Test: "Two-factor authentication with email code"
+
+Login and Request Code:
+1. Navigate to {{variable:APP_URL}}/login
+2. Type {{variable:TEST_EMAIL}} in email field
+3. Type {{variable:TEST_PASSWORD}} in password field
+4. Click "Sign In"
+5. Wait until: 2FA code entry form appears
+
+Retrieve Code:
+6. Add prompt: "Retrieve the verification code from the email"
+7. Add prompt: "Extract information about the 6-digit code with key VERIFICATION_CODE"
+8. Type {{key:VERIFICATION_CODE}} in code field
+9. Click "Verify"
+10. Wait until: Dashboard loads
+11. Verify user is fully logged in
+```
+
+**This test proves**: 2FA code delivery and verification work correctly.
+
+## Order Confirmation Emails
+
+Testing that order confirmations are sent correctly:
+
+```
+Test: "Order confirmation email is sent"
+
+Complete Purchase:
+1. Run component: "Add Product to Cart"
+2. Click "Proceed to Checkout"
+3. Wait until: Checkout form loads
+4. Add prompt: "Generate an email address for extracting information"
+5. Add prompt: "Extract information about the email address with key CUSTOMER_EMAIL"
+6. Type {{key:CUSTOMER_EMAIL}} in email field
+7. Fill shipping address
+8. Click "Continue to Payment"
+9. Fill payment info
+10. Click "Complete Purchase"
+11. Wait until: Order confirmation page appears
+12. Add prompt: "Extract information about the order number with key ORDER_NUMBER"
+
+Verify Email:
+13. Add prompt: "Retrieve the order confirmation email"
+14. Wait until: Email contains order number {{key:ORDER_NUMBER}} ← Verify it matches
+15. Wait until: Email contains "Thank you for your order"
+16. Wait until: Email contains shipping address
+17. Add prompt: "Verify email contains tracking information or shipping details"
+```
+
+**This test proves**: Order confirmations are sent with correct information.
+
+## Invitation Emails
+
+Testing invitation workflows:
+
+```
+Test: "Invite team member via email"
+
+Send Invitation:
+1. Run component: "Login as Admin"
+2. Navigate to {{variable:APP_URL}}/team
+3. Wait until: Team management page loads
+4. Click "Invite Member"
+5. Wait until: Invitation form appears
+6. Add prompt: "Generate an email address for extracting information"
+7. Add prompt: "Extract information about the email address with key INVITEE_EMAIL"
+8. Type {{key:INVITEE_EMAIL}} in email field
+9. Select "Member" role
+10. Click "Send Invitation"
+11. Wait until: "Invitation sent" confirmation appears
+
+Accept Invitation:
+12. Add prompt: "Retrieve the invitation link from the email"
+13. Add prompt: "Extract information about the invitation link with key INVITE_LINK"
+14. Navigate to {{key:INVITE_LINK}}
+15. Wait until: Accept invitation page loads
+16. Type {{random:first_name}} in first name field
+17. Type {{random:last_name}} in last name field
+18. Type {{random:password}} in password field
+19. Click "Accept Invitation"
+20. Wait until: Team dashboard loads
+
+Verify:
+21. Verify user {{key:INVITEE_EMAIL}} is part of team
+22. Verify user has "Member" role
+```
+
+**This test proves**: Invitation emails are sent, links work, and invited users can join.
+
+## Multiple Emails in One Test
+
+Some flows send multiple emails. You can test them sequentially:
+
+```
+Test: "Registration sends welcome email and verification email"
+
+Register:
+1. Navigate to signup
+2. Add prompt: "Generate an email address for extracting information"
+3. Add prompt: "Extract information about the email address with key USER_EMAIL"
+4. Fill registration form with {{key:USER_EMAIL}}
+5. Click "Sign Up"
+6. Wait until: Registration confirmation appears
+
+Verify Welcome Email:
+7. Add prompt: "Retrieve the welcome email"
+8. Wait until: Email contains "Welcome to our platform"
+9. Wait until: Email contains {{key:USER_EMAIL}}
+
+Verify Verification Email:
+10. Add prompt: "Retrieve the verification email"
+11. Add prompt: "Extract information about the verification link with key VERIFY_LINK"
+12. Wait until: Email contains "Verify your email address"
+13. Navigate to {{key:VERIFY_LINK}}
+14. Wait until: Verification success page loads
+```
+
+**This test verifies both emails are sent with correct content.**
+
+## Testing Email Content
+
+You can verify specific content in emails:
+
+```
+Test: "Order confirmation email has correct details"
+
+Complete Order:
+1. Complete checkout with product "Laptop"
+2. Wait until: Order confirmation appears
+3. Add prompt: "Extract information about order number with key ORDER_ID"
+4. Add prompt: "Extract information about order total with key ORDER_TOTAL"
+
+Verify Email Content:
+5. Add prompt: "Retrieve the order confirmation email"
+6. Wait until: Email contains order number {{key:ORDER_ID}}
+7. Wait until: Email contains total {{key:ORDER_TOTAL}}
+8. Wait until: Email contains "Laptop"
+9. Wait until: Email contains shipping address
+10. Add prompt: "Verify email contains estimated delivery date"
+```
+
+**This ensures emails have all required information.**
+
+## Using Email Components
+
+Create reusable components for common email patterns:
+
+**Component: "Generate and Save Email Address"**:
+```
+1. Add prompt: "Generate an email address for extracting information"
+2. Add prompt: "Extract information about the email address with key EMAIL_ADDRESS"
+```
+
+**Component: "Retrieve and Click Email Link"**:
+```
+1. Add prompt: "Retrieve the link from the email"
+2. Add prompt: "Extract information about the link with key EMAIL_LINK"
+3. Navigate to {{key:EMAIL_LINK}}
+```
+
+**Now your tests become simpler**:
+```
+Test: "Password reset"
+1. Navigate to forgot password page
+2. Run component: "Generate and Save Email Address"
+3. Request password reset for {{key:EMAIL_ADDRESS}}
+4. Run component: "Retrieve and Click Email Link"
+5. Complete password reset
+```
+
+## What Autonoma Handles Automatically
+
+When you use email actions, Autonoma:
+- Creates temporary email addresses
+- Monitors for incoming emails
+- Waits for email delivery (with timeout)
+- Extracts links, codes, or text as requested
+- Handles email delays and retry logic
+
+**You don't need to**:
+- Set up email infrastructure
+- Poll for emails
+- Parse email HTML/text
+- Handle email delivery delays
+
+**It just works.**
+
+## Tips for Email Testing
+
+**Be specific about what to extract**:
+```
+Good: "Retrieve the password reset link from the email"
+Good: "Retrieve the 6-digit verification code from the email"
+Vague: "Retrieve something from the email"
+```
+
+**Use extraction to save email data**:
+```
+1. Retrieve email link
+2. Extract information about the link with key LINK
+3. Navigate to {{key:LINK}}
+```
+
+**Verify email content when it matters**:
+```
+Wait until: Email contains order number
+Wait until: Email contains correct recipient name
+```
+
+**Use components for repeated email patterns**:
+Create components for common email flows you test frequently.
+
+## Common Email Test Scenarios
+
+**Authentication flows**:
+- Password reset
+- Magic link login
+- Two-factor authentication
+- Email verification
+
+**Transactional emails**:
+- Order confirmations
+- Shipping notifications
+- Payment receipts
+- Account updates
+
+**Communication flows**:
+- Invitation emails
+- Notification emails
+- Reminder emails
+- Welcome emails
+
+**Each can be tested end-to-end with Autonoma's email actions.**
+
+## What's Next
+
+You've now learned all the advanced testing capabilities in Autonoma:
+- File uploads
+- Data extraction and reuse
+- Mobile camera testing
+- Variables, random data, and keys
+- Components for reusability
+- Wait strategies
+- Robust element selection
+- Form testing strategy
+- Checkout flow testing
+- Email workflow testing
+
+You have everything you need to build comprehensive, robust test suites.
+
+The next section of documentation covers integrating tests with your development workflow—running tests automatically, debugging failures, and collaborating with your team.
+
+---
+
+*Congratulations! You've completed the Advanced Testing guides. Continue to the next section to learn about CI/CD integration and team workflows.*

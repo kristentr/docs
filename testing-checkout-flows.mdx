@@ -1,0 +1,405 @@
+---
+title: "Testing Checkout Flows: From Cart to Confirmation"
+description: "Learn the complete strategy for testing e-commerce checkout flows comprehensively without writing 50 tests."
+---
+
+# Testing Checkout Flows: From Cart to Confirmation
+
+## The Critical Path
+
+Your e-commerce app has dozens of features. But one flow matters more than all the others combined:
+
+**Browse → Add to Cart → Checkout → Payment → Confirmation**
+
+If this breaks, you lose money. Every minute it's broken is revenue lost.
+
+**This is your critical path.** And it needs bulletproof testing.
+
+But checkout flows are complex:
+- Multiple steps (cart → shipping → payment → review → confirmation)
+- External integrations (payment processors, shipping calculators)
+- Conditional logic (guest vs logged-in, different shipping options)
+- Edge cases (promo codes, gift cards, taxes)
+
+Testing it comprehensively without writing 50 tests requires strategy.
+
+This guide shows you how.
+
+## The Checkout Testing Strategy
+
+Think of checkout testing in layers:
+
+**Layer 1: Core happy paths** (2-3 tests)
+- Guest checkout with card payment
+- Logged-in user checkout
+- Mobile checkout (if different from web)
+
+**Layer 2: Payment variations** (2-3 tests)
+- Different payment methods (card, PayPal, etc.)
+- Saved payment methods
+- Payment failures
+
+**Layer 3: Checkout features** (3-5 tests)
+- Promo codes
+- Multiple items
+- Different shipping options
+- Guest to account conversion
+
+**Layer 4: Edge cases** (2-3 tests)
+- Inventory changes during checkout
+- Session timeout
+- Address validation failures
+
+**Total: 9-14 tests** that cover your entire checkout flow comprehensively.
+
+## Layer 1: Core Happy Path Tests
+
+Start with the most common successful checkout scenarios.
+
+**Test 1: Guest checkout**
+
+```
+Test: "Guest checkout with card payment"
+
+Browse and Add to Cart:
+1. Navigate to {{variable:APP_URL}}/products
+2. Wait until: Products load
+3. Add prompt: "Click the first product"
+4. Wait until: Product page loads
+5. Click "Add to Cart"
+6. Wait until: Cart badge updates
+
+View Cart:
+7. Click cart icon
+8. Wait until: Cart page loads
+9. Verify product appears in cart
+10. Click "Proceed to Checkout"
+
+Shipping Information:
+11. Wait until: Checkout form loads
+12. Type {{random:email}} in email field
+13. Type {{random:first_name}} in first name field
+14. Type {{random:last_name}} in last name field
+15. Type {{random:address}} in address field
+16. Type {{random:city}} in city field
+17. Type {{random:state}} in state field
+18. Type {{random:zip_code}} in zip code field
+19. Type {{random:phone_number}} in phone field
+20. Click "Continue to Payment"
+
+Payment:
+21. Wait until: Payment form loads
+22. Type {{variable:TEST_CARD_NUMBER}} in card number field
+23. Type "12/25" in expiry field
+24. Type "123" in CVV field
+25. Click "Complete Purchase"
+
+Confirmation:
+26. Wait until: Order confirmation appears
+27. Add prompt: "Extract information about the order number with key ORDER_ID"
+28. Verify confirmation shows order {{key:ORDER_ID}}
+29. Verify email {{random:email}} is mentioned
+```
+
+**This test proves**: The complete guest checkout flow works from start to finish.
+
+**Test 2: Logged-in user checkout**
+
+```
+Test: "Logged-in user checkout with saved address"
+
+Setup:
+1. Run component: "Login as Test User"
+2. Navigate to {{variable:APP_URL}}/products
+3. Wait until: Products load
+
+Add to Cart:
+4. Add prompt: "Click the first product"
+5. Wait until: Product page loads
+6. Click "Add to Cart"
+7. Wait until: Cart badge updates
+
+Checkout:
+8. Click cart icon
+9. Wait until: Cart page loads
+10. Click "Proceed to Checkout"
+11. Wait until: Checkout form loads
+12. Verify shipping address is pre-filled ← Logged-in user benefit
+13. Click "Continue to Payment"
+
+Payment:
+14. Wait until: Payment form loads
+15. Add prompt: "Select saved payment method" ← Another logged-in benefit
+16. Click "Complete Purchase"
+
+Confirmation:
+17. Wait until: Order confirmation appears
+18. Add prompt: "Extract information about the order number with key ORDER_ID"
+19. Navigate to {{variable:APP_URL}}/orders
+20. Wait until: Order {{key:ORDER_ID}} appears in order history ← Verify it's linked to account
+```
+
+**This test proves**: Logged-in users can checkout with saved information.
+
+## Layer 2: Payment Variation Tests
+
+Test different payment methods and scenarios.
+
+**Test 3: Payment failure handling**
+
+```
+Test: "Checkout fails gracefully with declined card"
+
+Setup and Add to Cart:
+1. Run component: "Add Product to Cart"
+2. Proceed to checkout
+3. Fill shipping information
+4. Click "Continue to Payment"
+
+Failed Payment:
+5. Wait until: Payment form loads
+6. Type {{variable:DECLINED_CARD_NUMBER}} in card number field ← Test card that declines
+7. Type "12/25" in expiry field
+8. Type "123" in CVV field
+9. Click "Complete Purchase"
+10. Wait until: Error message appears
+11. Verify error mentions "declined" or "payment failed"
+12. Verify user is still on checkout page ← Not kicked out
+13. Verify cart still has items ← Order not lost
+
+Retry with Valid Card:
+14. Type {{variable:TEST_CARD_NUMBER}} in card number field
+15. Click "Complete Purchase"
+16. Wait until: Order confirmation appears ← Successfully recovered
+```
+
+**This test proves**: Payment failures are handled gracefully and users can retry.
+
+## Layer 3: Checkout Feature Tests
+
+Test specific checkout features.
+
+**Test 4: Apply promo code**
+
+```
+Test: "Checkout with promo code discount"
+
+Add Product:
+1. Run component: "Add Product to Cart"
+2. Click cart icon
+3. Wait until: Cart loads
+4. Add prompt: "Extract information about the cart total with key ORIGINAL_TOTAL"
+
+Apply Promo:
+5. Type {{variable:TEST_PROMO_CODE}} in promo code field
+6. Click "Apply"
+7. Wait until: Discount appears
+8. Verify total is less than {{key:ORIGINAL_TOTAL}}
+9. Add prompt: "Extract information about the discounted total with key DISCOUNTED_TOTAL"
+
+Complete Checkout:
+10. Click "Proceed to Checkout"
+11. Fill shipping and payment info
+12. Click "Complete Purchase"
+13. Wait until: Order confirmation appears
+14. Verify order total shows {{key:DISCOUNTED_TOTAL}} ← Discount persisted
+```
+
+**This test proves**: Promo codes apply correctly and persist through checkout.
+
+**Test 5: Multiple items in cart**
+
+```
+Test: "Checkout with multiple products"
+
+Add Multiple Products:
+1. Navigate to products
+2. Wait until: Products load
+3. Add prompt: "Click the first product"
+4. Wait until: Product page loads
+5. Click "Add to Cart"
+6. Wait until: Cart badge shows "1"
+7. Click "Continue Shopping"
+8. Wait until: Products load
+9. Add prompt: "Click the second product" ← Different product
+10. Wait until: Product page loads
+11. Click "Add to Cart"
+12. Wait until: Cart badge shows "2"
+
+Verify Cart:
+13. Click cart icon
+14. Wait until: Cart loads
+15. Verify cart shows 2 items
+16. Add prompt: "Extract information about the total with key CART_TOTAL"
+
+Complete Checkout:
+17. Click "Proceed to Checkout"
+18. Fill checkout form
+19. Click "Complete Purchase"
+20. Wait until: Confirmation appears
+21. Verify confirmation shows 2 items
+22. Verify total matches {{key:CART_TOTAL}}
+```
+
+**This test proves**: Multiple items are handled correctly through checkout.
+
+## Layer 4: Edge Case Tests
+
+Test unusual but important scenarios.
+
+**Test 6: Product goes out of stock during checkout**
+
+```
+Test: "Handle out-of-stock during checkout"
+
+Add Product:
+1. Navigate to products
+2. Wait until: Products load
+3. Add prompt: "Click the first product"
+4. Wait until: Product page loads
+5. Add prompt: "Extract information about product name with key PRODUCT_NAME"
+6. Click "Add to Cart"
+7. Wait until: Cart updates
+
+Simulate Stock Change (using API via Fetch):
+8. Run fetch action: "Remove product {{key:PRODUCT_NAME}} from inventory"
+
+Attempt Checkout:
+9. Click cart icon
+10. Wait until: Cart loads
+11. Click "Proceed to Checkout"
+12. Wait until: Error message appears ← Should warn about stock
+13. Verify error mentions product is unavailable
+14. Verify checkout is blocked
+```
+
+**This test proves**: Inventory changes are detected before order completion.
+
+## Using Components for Checkout Tests
+
+Checkout tests share a lot of common setup. Use components:
+
+**Component: "Add Product to Cart"**:
+```
+1. Navigate to {{variable:APP_URL}}/products
+2. Wait until: Products load
+3. Add prompt: "Click the first product"
+4. Wait until: Product page loads
+5. Click "Add to Cart"
+6. Wait until: Cart badge updates
+```
+
+**Component: "Fill Shipping Info"**:
+```
+1. Type {{random:email}} in email field
+2. Type {{random:first_name}} in first name field
+3. Type {{random:last_name}} in last name field
+4. Type {{random:address}} in address field
+5. Type {{random:city}} in city field
+6. Type {{random:state}} in state field
+7. Type {{random:zip_code}} in zip code field
+8. Type {{random:phone_number}} in phone field
+```
+
+**Component: "Pay with Test Card"**:
+```
+1. Type {{variable:TEST_CARD_NUMBER}} in card number field
+2. Type "12/25" in expiry field
+3. Type "123" in CVV field
+4. Click "Complete Purchase"
+```
+
+**Now your tests become shorter**:
+```
+Test: "Guest checkout"
+1. Run component: "Add Product to Cart"
+2. Click "Proceed to Checkout"
+3. Run component: "Fill Shipping Info"
+4. Click "Continue to Payment"
+5. Run component: "Pay with Test Card"
+6. Wait until: Confirmation appears
+```
+
+**Maintenance becomes easier**: Change shipping fields once, all tests update.
+
+## The Smoke Test for Checkout
+
+Create one ultra-simple smoke test that runs before every deployment:
+
+```
+Test: "Smoke - Basic checkout works"
+
+1. Run component: "Add Product to Cart"
+2. Click "Proceed to Checkout"
+3. Run component: "Fill Shipping Info"
+4. Click "Continue to Payment"
+5. Run component: "Pay with Test Card"
+6. Wait until: Order confirmation appears
+
+Total steps: ~6 (with components expanded: ~25)
+Run time: ~45 seconds
+Purpose: Verify checkout isn't completely broken
+```
+
+Run this smoke test in your CI/CD pipeline before deploying. If it fails, don't deploy.
+
+## What Not to Test in E2E
+
+**Don't test payment processor internals**:
+- How Stripe validates cards (Stripe tests this)
+- How PayPal processes payments (PayPal tests this)
+- Tax calculation algorithms (your backend tests this)
+
+**Do test integrations**:
+- That payment methods appear correctly
+- That declined cards are handled
+- That successful payments result in order confirmation
+
+**Don't test every edge case**:
+- Every possible card type
+- Every country's address format
+- Every shipping carrier's validation
+
+**Do test common scenarios**:
+- Guest vs logged-in checkout
+- Multiple payment methods
+- Promo codes and discounts
+
+## Real-World Checkout Suite
+
+Here's what a complete checkout test suite looks like:
+
+**Core Happy Paths** (3 tests):
+1. Guest checkout with card
+2. Logged-in user checkout
+3. Mobile checkout (if different)
+
+**Payment Variations** (3 tests):
+4. PayPal checkout
+5. Saved payment method
+6. Declined card handling
+
+**Checkout Features** (4 tests):
+7. Promo code application
+8. Multiple items
+9. Expedited shipping
+10. Gift card payment
+
+**Edge Cases** (2 tests):
+11. Out of stock during checkout
+12. Invalid address handling
+
+**Smoke Test** (1 test):
+13. Basic checkout works
+
+**Total: 13 tests, ~15 minutes runtime, comprehensive coverage.**
+
+## What's Next
+
+You now have a complete strategy for testing complex checkout flows—comprehensive without drowning in test cases. Apply the same layered approach (happy paths, variations, features, edge cases) to any multi-step flow.
+
+Next, let's explore one final advanced topic: testing email-dependent workflows from generation to verification.
+
+---
+
+*Ready to learn email testing? Continue to [Email Testing: The Complete Flow →](/email-testing)*
