@@ -51,12 +51,12 @@
     "global": {
       "anchors": [
         {
-          "anchor": "Website",
+          "anchor": "Landing Page",
           "icon": "globe",
           "href": "https://getautonoma.com/"
         },
         {
-          "anchor": "Dashboard",
+          "anchor": "Application Dashboard",
           "icon": "computer",
           "href": "https://autonoma.app"
         }
