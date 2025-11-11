@@ -54,12 +54,17 @@
           "anchor": "Website",
           "icon": "globe",
           "href": "https://getautonoma.com/"
+        },
+        {
+          "anchor": "Dashboard",
+          "icon": "computer",
+          "href": "https://autonoma.app"
         }
       ]
     },
      "tabs": [
        {
-         "tab": "Get Started",
+          "tab": "Documentation",
          "groups": [
            {
              "group": "Introduction",

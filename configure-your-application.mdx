@@ -3,6 +3,17 @@ title: "Configure Your Application"
 description: "Learn how to add your application to Autonoma and configure authentication for testing web and mobile apps."
 ---
 
+## Authentication Options
+
+Autonoma supports multiple authentication methods. Choose the one that matches your application:
+
+<CardGroup cols="2">
+  <Card title="Email and Password" icon="user" href="#email-and-password" cta="Most common authentication method with username/password" />
+  <Card title="Magic Link" icon="envelope" href="#magic-link" cta="Passwordless authentication via email links" />
+  <Card title="Header or Cookie Bypass" icon="key" href="#header-or-cookie-bypass" cta="Fastest method requiring development team support" />
+  <Card title="IP Whitelisting" icon="lock" href="#ip-whitelisting" cta="Additional security layer for restricting access" />
+</CardGroup>
+
 ## Why Application Configuration Matters
 
 Before you can test your application with Autonoma, you need to set it up properly. This involves two key steps:
@@ -47,15 +58,6 @@ Once you've uploaded the application (and version), it's now ready to be used! Y
 ## Step 2: Configuring Authentication
 
 Now that your application is added, you need to configure how your tests will authenticate. Let's identify what type of authentication your application uses.
-
-## Authentication Options
-
-Autonoma supports multiple authentication methods. Choose the one that matches your application:
-
-- [Email and Password](#email-and-password): Most common authentication method with username/password
-- [Magic Link](#magic-link): Passwordless authentication via email links
-- [Header or Cookie Bypass](#header-or-cookie-bypass): Fastest method requiring development team support
-- [IP Whitelisting](#ip-whitelisting): Additional security layer for restricting access
 
 ## Email and Password
 
@@ -156,6 +158,8 @@ Instead of hard-coding credentials in every test, use Autonoma's **Variables** f
 ## Magic Link
 
 Magic links are special URLs sent via email that log users in when clicked. Testing these requires accessing email programmatically.
+
+![Explaining how to login with magic link in Autonoma](https://cdn.autonoma.app/interaction-gifs/interaction-email-generator.gif)
 
 ### How It Works
 

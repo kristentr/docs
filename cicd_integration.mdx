@@ -3,6 +3,17 @@ title: "CI/CD Integration Guide"
 description: "Learn how to integrate Autonoma with your CI/CD pipeline to automatically run tests on code changes using GitHub Actions, GitLab CI, Bitbucket Pipelines, or cURL."
 ---
 
+## Integration Options
+
+Autonoma supports multiple CI/CD platforms. Choose the one your team uses:
+
+<CardGroup cols="2">
+  <Card title="GitHub Actions" icon="github" href="#github-actions" cta="Best for teams using GitHub for version control" />
+  <Card title="GitLab CI" icon="gitlab" href="#gitlab-ci" cta="Best for teams using GitLab for version control" />
+  <Card title="Bitbucket Pipelines" icon="bitbucket" href="#bitbucket-pipelines" cta="Best for teams using Bitbucket for version control" />
+  <Card title="cURL (Universal)" icon="globe" href="#curl-universal" cta="Works with any CI/CD system—Jenkins, CircleCI, Travis, etc." />
+</CardGroup>
+
 ## What is CI/CD and Why Does It Matter?
 
 **CI/CD** stands for **Continuous Integration / Continuous Deployment**—it's the practice of automatically testing and deploying code changes.
@@ -63,15 +74,6 @@ Go to the API Keys section in your Autonoma dashboard and generate a key. You wi
 You'll need:
 - **Client ID**: Your unique identifier
 - **Client Secret**: Your secret key (keep this secure!)
-
-## Integration Options
-
-Autonoma supports multiple CI/CD platforms. Choose the one your team uses:
-
-- [GitHub Actions](#github-actions): Best for teams using GitHub for version control
-- [GitLab CI](#gitlab-ci): Best for teams using GitLab for version control
-- [Bitbucket Pipelines](#bitbucket-pipelines): Best for teams using Bitbucket for version control
-- [cURL (Universal)](#curl-universal): Works with any CI/CD system—Jenkins, CircleCI, Travis, etc.
 
 ## GitHub Actions
 
@@ -171,7 +173,9 @@ Once configured:
 
 GitLab CI is GitLab's built-in automation platform. If your code is on GitLab, use this option.
 
-#### Step 1: Add Credentials to GitLab CI/CD Variables
+#### Step 1: Go to Settings > [Integrations](https://autonoma.app/settings/integrations) in your Autonoma dashboard.
+
+#### Step 2: Add Credentials to GitLab CI/CD Variables
 
 1. Go to your GitLab project
 2. Navigate to **Settings** → **CI/CD**
@@ -237,7 +241,9 @@ regression_tests:
 
 Bitbucket Pipelines is Bitbucket's built-in automation platform.
 
-#### Step 1: Add Credentials to Bitbucket Variables
+#### Step 1: Go to Settings > [Integrations](https://autonoma.app/settings/integrations) in your Autonoma dashboard.
+
+#### Step 2: Add Credentials to Bitbucket Variables
 
 1. Go to your Bitbucket repository
 2. Navigate to **Repository settings**
